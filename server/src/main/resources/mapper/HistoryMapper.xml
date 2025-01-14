@@ -21,4 +21,8 @@
         select * from history where user_id = #{userId}
     </select>
 
+    <delete id="clear" parameterType="com.example.demo.model.History">
+        delete from history where user_id = #{userId}
+    </delete>
+
 </mapper>

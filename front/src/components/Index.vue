@@ -31,7 +31,7 @@
                 <el-button type="info" @click="loadDialogs">加载对话</el-button>
               </el-col>
               <el-col :span="8" style="text-align: center">
-                <el-button type="warning" @click="clearDialogs">清空对话</el-button>
+                <el-button type="warning" @click="clearDialogs">清空历史</el-button>
               </el-col>
             </el-row>
           </el-main>
@@ -69,7 +69,9 @@ const loadDialogs = () => {
 }
 
 const clearDialogs = () => {
-  dialogs.value = []
+  ServerAPI.clear(() =>{
+    dialogs.value = []
+  })
 }
 
 onMounted(() => {

@@ -15,7 +15,7 @@ public class AIController {
     private OllamaService ollamaService;
 
     @GetMapping("/text")
-    public ResponseEntity chat(@RequestParam(value = "msg", defaultValue = "Tell me a joke") String msg) {
+    public ResponseEntity chat(@RequestParam(value = "msg", defaultValue = "给我讲个笑话") String msg) {
         String res = ollamaService.chat(msg);
         return ResponseEntity.ok().body(res);
     }
@@ -30,6 +30,14 @@ public class AIController {
     public ResponseEntity load() {
         Dialogs res = ollamaService.load();
         return ResponseEntity.ok().body(res);
+    }
+
+    @DeleteMapping("/clear")
+    public ResponseEntity clear() {
+        System.out.println(1);
+        ollamaService.clear();
+        System.out.println(2);
+        return ResponseEntity.ok().build();
     }
 
 //    @GetMapping("/steam")

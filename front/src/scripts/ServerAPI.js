@@ -24,7 +24,6 @@ function save(data, callback) {
         return response.text();
     }).then(data => {
         callback(data, null)
-
     }).catch(error => {
         callback(null, error)
     });
@@ -39,8 +38,25 @@ function load(callback) {
         });
 }
 
+function clear(callback) {
+    fetch('/server-api/chat/clear', {
+        method: 'DELETE',
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();
+    }).then(data => {
+        callback(data, null)
+    }).catch(error => {
+        callback(null, error)
+    });
+}
+
+
 export default {
     chat: chat,
     save: save,
-    load: load
+    load: load,
+    clear: clear
 }

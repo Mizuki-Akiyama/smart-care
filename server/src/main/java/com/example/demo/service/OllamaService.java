@@ -40,4 +40,12 @@ public class OllamaService {
         return opHistory.isPresent() ? new Dialogs(opHistory.get().getHistory()) : null;
     }
 
+    public void clear(){
+        String userId = ThreadLocalHolder.getAuthUser().getUserId();
+        Optional<History> opHistory = historyMapper.findByUserId(userId);
+        if (opHistory.isPresent()) {
+            historyMapper.clear(userId);
+        }
+    }
+
 }

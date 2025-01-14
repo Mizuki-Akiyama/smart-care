@@ -12,4 +12,6 @@ public interface HistoryMapper {
 
     Optional<History> findByUserId(String userId);
 
+    void clear(String userId);
+
 }
