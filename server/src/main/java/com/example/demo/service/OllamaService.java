@@ -5,8 +5,12 @@ import com.example.demo.mapper.HistoryMapper;
 import com.example.demo.model.Dialogs;
 import com.example.demo.model.History;
 import jakarta.annotation.Resource;
+import org.springframework.ai.chat.ChatResponse;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.ollama.OllamaChatClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 import java.util.Optional;
 
@@ -19,8 +23,13 @@ public class OllamaService {
     @Resource
     private HistoryMapper historyMapper;
 
-    public String chat(String msg) {
-        return ollamaChatClient.call(msg);
+//    public String chat(String msg) {
+//        return ollamaChatClient.call(msg);
+//    }
+
+    public Flux<ChatResponse> chat(String msg) {
+        Prompt prompt = new Prompt(msg);
+        return ollamaChatClient.stream(prompt);
     }
 
     public void save(Dialogs dialogs) {
@@ -47,5 +56,7 @@ public class OllamaService {
             historyMapper.clear(userId);
         }
     }
+
+
 
 }

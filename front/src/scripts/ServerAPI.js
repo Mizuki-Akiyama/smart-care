@@ -1,11 +1,13 @@
 
 function chat(msg, callback) {
-    fetch('/server-api/chat/text?msg=' + msg, {
-        method: 'GET',
-    }).then((response) => response.text())
-        .then((data) =>  {
-            callback(data)
-        });
+    const eventSource = new EventSource(`/server-api/chat/stream?msg=` + msg);
+    eventSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        callback(data.result.output.content)
+        if (data.result.metadata.finishReason==='unknown'){
+            eventSource.close()
+        }
+    }
 }
 
 function save(data, callback) {
@@ -60,3 +62,13 @@ export default {
     load: load,
     clear: clear
 }
+
+// fetch('/server-api/chat/stream?msg=' + msg, {
+//     method: 'GET',
+// }).then((response) => response.text())
+//     .then((data) =>  {
+//         console.log(JSON.parse(data))
+//         callback(data)
+//         // const msg = data.slice(6,data.length+1)
+//         // console.log(msg)
+//     });
