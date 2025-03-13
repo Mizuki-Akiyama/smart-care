@@ -13,6 +13,8 @@
 
  Date: 14/01/2025 14:55:37
 */
+create database smart_care_db;
+use smart_care_db;
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;

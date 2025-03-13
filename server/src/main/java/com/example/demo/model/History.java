@@ -12,4 +12,5 @@ import lombok.experimental.Accessors;
 public class History {
     private String userId;
     private String history;
+    private String chatId;
 }

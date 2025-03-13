@@ -6,28 +6,42 @@
         <h4>心语智疗</h4>
       </el-header>
 
+
       <el-container>
         <el-aside width="250px"
                   style="text-align: center;background-color: #0e1422; font-size: 30px; font-family: '华文新魏';color: #f1ede4;">
           聊天历史
-
           <div>
-            <el-button size="large" color="#626aef" class="new" round>
-              <el-icon class="el-icon--left" style="margin-right: 8px" size="17" color="#ffffff"><ChatLineSquare /></el-icon>
-              开始新对话
+            <el-button size="large" color="#626aef" class="new" round @click="newDialog">
+              <el-icon class="el-icon--left" style="margin-right: 8px" size="17" color="#ffffff">
+                <ChatLineSquare/>
+              </el-icon>
+              <p style="font-size: 15px">开启新对话</p>
             </el-button>
 
-            <el-scrollbar height="700px">
-              <div v-for="item in 20" :key="item" class="scrollbar-demo-item">{{ item }}</div>
+            <el-scrollbar height="710px">
+              <div>
+                <el-button :class="{new:isOn}" size="large"  color="#0e1422" :dark="isDark" style="width: 230px;" round
+                           v-for="item in chat" :key="item" @click="isOn"
+                >
+                  <p class="text-item">
+                    {{ item }}
+                    <el-button @click="clearDialogs">
+                      <el-icon><Delete/></el-icon>
+                    </el-button>
+                  </p>
+                </el-button>
+              </div>
             </el-scrollbar>
           </div>
         </el-aside>
+
+
         <el-main style="background-color: #252831">
           <el-row class="title-row">
             <el-col :span="24" class="title-col">对话</el-col>
           </el-row>
           <el-row>
-
             <el-col :span="24" style="background-color: #f2f2f2;min-height: 685px">
               <div v-for="dialog in dialogs" id="dialog">
                 <span>{{ dialog.user }}{{ dialog.content }}</span>
@@ -55,15 +69,15 @@
             <el-col :span="24"></el-col>
           </el-row>
           <el-row>
-            <!--            <el-col :span="8" style="text-align: center">-->
-            <!--              <el-button type="success" @click="saveDialogs">保存对话</el-button>-->
-            <!--            </el-col>-->
-            <!--            <el-col :span="8" style="text-align: center">-->
-            <!--              <el-button type="info" @click="loadDialogs">加载对话</el-button>-->
-            <!--            </el-col>-->
-            <!--            <el-col :span="8" style="text-align: center">-->
-            <!--              <el-button type="warning" @click="clearDialogs">清空历史</el-button>-->
-            <!--            </el-col>-->
+<!--                        <el-col :span="8" style="text-align: center">-->
+<!--                          <el-button type="success" @click="saveDialogs">保存对话</el-button>-->
+<!--                        </el-col>-->
+                        <el-col :span="8" style="text-align: center">
+                          <el-button type="info" @click="loadDialogs">加载对话</el-button>
+                        </el-col>
+<!--                        <el-col :span="8" style="text-align: center">-->
+<!--                          <el-button type="warning" @click="clearDialogs">清空历史</el-button>-->
+<!--                        </el-col>-->
           </el-row>
         </el-main>
       </el-container>
@@ -76,10 +90,19 @@
 <script setup>
 import {onMounted, ref} from 'vue'
 import ServerAPI from '../scripts/ServerAPI'
-import {ChatLineSquare, ChatSquare, Plus, Promotion} from "@element-plus/icons-vue";
+import {ChatLineSquare, Delete, Promotion} from "@element-plus/icons-vue";
 
 const dialogs = ref([])
+const chat = ref([])
 const input = ref('')
+const isOn = ref(false)
+
+const isEmpty = () => {
+  if (chat.value.length === 0) {
+    newDialog()
+  }
+}
+
 const send = () => {
   let content = '';
   if (input.value === '') {
@@ -90,16 +113,24 @@ const send = () => {
   ServerAPI.chat(input.value, data => {
     content += data;
     dialogs.value[dialogs.value.length - 1].content = content
+    saveDialogs()
   })
   input.value = ''
+
 }
 
-const saveDialogs = () => {
+// const saveDialogs = () => {
+//   ServerAPI.save(JSON.stringify(dialogs.value), data => {
+//     console.log(data)
+//     alert('保存成功！')
+//   })
+// }
+
+function saveDialogs(){
   ServerAPI.save(JSON.stringify(dialogs.value), data => {
-    console.log(data)
-    alert('保存成功！')
   })
 }
+
 
 const loadDialogs = () => {
   ServerAPI.load(data => {
@@ -122,6 +153,14 @@ const clearDialogs = () => {
 }
 
 
+const newDialog = () => {
+  dialogs.value = []
+  input.value = ''
+  // chat.value.push(dialogs.value[8].content)
+  chat.value.push(1)
+}
+
+
 onMounted(() => {
 
 })
@@ -129,7 +168,12 @@ onMounted(() => {
 
 <style>
 
-.new{
+.text-item {
+  text-align: center;
+  font-size: 12px;
+}
+
+.new {
   font-size: 24px;
   font-family: 微软雅黑;
   width: 200px;

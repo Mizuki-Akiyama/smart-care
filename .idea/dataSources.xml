@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="db35@localhost" uuid="14e6ef78-47ff-4bfe-a1cd-1dba5a10d94c">
+    <data-source source="LOCAL" name="smart_care_db@localhost" uuid="2e5bcbbf-85dc-4ab2-b7c1-3d41d961317b">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
-      <imported>true</imported>
-      <remarks>$PROJECT_DIR$/server/src/main/resources/application.yml</remarks>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306/db35?serverTimezone=GMT</jdbc-url>
+      <jdbc-url>jdbc:mysql://localhost:3306/smart_care_db</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />

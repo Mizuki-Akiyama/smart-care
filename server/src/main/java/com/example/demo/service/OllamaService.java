@@ -8,7 +8,6 @@ import jakarta.annotation.Resource;
 import org.springframework.ai.chat.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.ollama.OllamaChatClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -41,6 +40,8 @@ public class OllamaService {
         } else {
             historyMapper.insert(h);
         }
+
+
     }
 
     public Dialogs load() {
