@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
+
 import com.example.demo.model.Dialogs;
+import com.example.demo.model.History;
 import com.example.demo.service.OllamaService;
 import org.springframework.ai.chat.ChatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +11,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
+import java.awt.*;
+import java.util.List;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/chat")
+@RequestMapping("/ai")
 public class AIController {
 
 
@@ -23,24 +29,29 @@ public class AIController {
 //        return ResponseEntity.ok().body(res);
 //    }
 
-    @PostMapping("/save")
-    public ResponseEntity save(@RequestBody Dialogs dialogs) {
-        ollamaService.save(dialogs);
+    @PostMapping("/save/{chatId}")
+    public ResponseEntity save(@PathVariable("chatId") String chatId, @RequestBody Dialogs dialogs) {
+        System.out.println(dialogs.getData());
+        ollamaService.save(dialogs,chatId);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/load")
-    public ResponseEntity load() {
-        Dialogs res = ollamaService.load();
+    @GetMapping("/load/{chatId}")
+    public ResponseEntity load(@PathVariable("chatId") String chatId) {
+        Dialogs res = ollamaService.load(chatId);
         return ResponseEntity.ok().body(res);
     }
 
-    @DeleteMapping("/clear")
-    public ResponseEntity clear() {
-        ollamaService.clear();
+    @DeleteMapping("/clear/{chatId}")
+    public ResponseEntity clear(@PathVariable("chatId") String chatId) {
+        ollamaService.clear(chatId);
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/loadAll")
+    public ResponseEntity loadAll() {
+        return ResponseEntity.ok().body(ollamaService.loadAll());
+    }
 //    @GetMapping("/steam")
 //    public Flux<String> stream(@RequestParam(value = "message", defaultValue = "1+1=?") String message) {
 //

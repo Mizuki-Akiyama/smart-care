@@ -1,24 +1,25 @@
 
-function chat(msg, callback) {
-    const eventSource = new EventSource(`/server-api/chat/stream?msg=` + msg);
+function chat(msg, callback, finish) {
+    const eventSource = new EventSource(`/server-api/ai/stream?msg=` + msg);
     eventSource.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-        callback(data.result.output.content)
+        const data = JSON.parse(event.data)
+        callback(data.result.output.content,null)
         if (data.result.metadata.finishReason==='unknown'){
             eventSource.close()
+            finish()
         }
     }
 }
 
-function save(data, callback) {
+function save(chatId, data, callback) {
     const headers = new Headers();
     // headers.append('Authorization', store.state.userId);
     // headers.append('Authorization', "jyk");
     headers.append('Content-Type', 'application/json')
-    fetch('/server-api/chat/save', {
+    fetch('/server-api/ai/save/'+chatId, {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify({'data': data}),
+        body: JSON.stringify({'data': JSON.stringify(data)}),
     }).then(response => {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -31,17 +32,24 @@ function save(data, callback) {
     });
 }
 
-function load(callback) {
-    fetch('/server-api/chat/load', {
+function load(chatId,callback) {
+    fetch('/server-api/ai/load/' + chatId, {
         method: 'GET',
-    }).then((response) => response.json())
-        .then((data) =>  {
-            callback(data.data)
-        });
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        response.json()
+            .then((data) =>  {
+                callback(data.data)
+            });
+    })
+
 }
 
-function clear(callback) {
-    fetch('/server-api/chat/clear', {
+function clear(chatId,callback) {
+    fetch('/server-api/ai/clear/' + chatId, {
         method: 'DELETE',
     }).then(response => {
         if (!response.ok) {
@@ -55,20 +63,25 @@ function clear(callback) {
     });
 }
 
+function loadAll(callback) {
+    fetch('/server-api/ai/loadAll', {
+        method: 'GET',
+    }).then(response=> {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return response.json()
+
+    }).then(data => {
+        callback(data)
+    })
+}
 
 export default {
     chat: chat,
     save: save,
     load: load,
-    clear: clear
+    clear: clear,
+    loadAll: loadAll,
 }
-
-// fetch('/server-api/chat/stream?msg=' + msg, {
-//     method: 'GET',
-// }).then((response) => response.text())
-//     .then((data) =>  {
-//         console.log(JSON.parse(data))
-//         callback(data)
-//         // const msg = data.slice(6,data.length+1)
-//         // console.log(msg)
-//     });

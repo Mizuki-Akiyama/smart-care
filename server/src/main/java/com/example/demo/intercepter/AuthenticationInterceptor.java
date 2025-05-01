@@ -29,7 +29,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        ThreadLocalHolder.threadLocal.remove();
+        ThreadLocalHolder.userThread.remove();
         HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
 

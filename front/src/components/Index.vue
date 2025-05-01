@@ -21,13 +21,14 @@
 
             <el-scrollbar height="710px">
               <div>
-                <el-button :class="{new:isOn}" size="large"  color="#0e1422" :dark="isDark" style="width: 230px;" round
-                           v-for="item in chat" :key="item" @click="isOn"
-                >
+                <el-button :class="{new:isOn}" size="large" color="#0e1422" style="width: 230px;" round
+                           v-for="item in chat" :key="item" @click="loadDialogs(item.id)">
                   <p class="text-item">
-                    {{ item }}
+                    {{ item.title }}
                     <el-button @click="clearDialogs">
-                      <el-icon><Delete/></el-icon>
+                      <el-icon>
+                        <Delete/>
+                      </el-icon>
                     </el-button>
                   </p>
                 </el-button>
@@ -43,16 +44,20 @@
           </el-row>
           <el-row>
             <el-col :span="24" style="background-color: #f2f2f2;min-height: 685px">
-              <div v-for="dialog in dialogs" id="dialog">
-                <span>{{ dialog.user }}{{ dialog.content }}</span>
+              <div v-for="dialog in dialogs" id="dialog" :key="index" class="dialog-item">
+                <span class="grid-list">{{ dialog.user }}{{ dialog.content }}</span>
               </div>
+
+              <!--              <el-table :data="dialogs" v-for="dialog in dialogs" id="dialog" stripe style="width: 100%">-->
+              <!--                <el-table-column prop={{dialog.user}} width="180" />{{dialog.content}}-->
+              <!--              </el-table>-->
 
             </el-col>
           </el-row>
           <el-row style="padding-top: 10px">
             <el-col :span="20">
               <el-input v-model="input" size="large" placeholder="请输入要发送的内容，试着发送 ‘给我讲个笑话’"
-                        clearable/>
+                        @keyup.enter="send" clearable/>
             </el-col>
             <el-col :span="1"></el-col>
             <el-col :span="3">
@@ -69,15 +74,15 @@
             <el-col :span="24"></el-col>
           </el-row>
           <el-row>
-<!--                        <el-col :span="8" style="text-align: center">-->
-<!--                          <el-button type="success" @click="saveDialogs">保存对话</el-button>-->
-<!--                        </el-col>-->
-                        <el-col :span="8" style="text-align: center">
-                          <el-button type="info" @click="loadDialogs">加载对话</el-button>
-                        </el-col>
-<!--                        <el-col :span="8" style="text-align: center">-->
-<!--                          <el-button type="warning" @click="clearDialogs">清空历史</el-button>-->
-<!--                        </el-col>-->
+            <!--                        <el-col :span="8" style="text-align: center">-->
+            <!--                          <el-button type="success" @click="saveDialogs">保存对话</el-button>-->
+            <!--                        </el-col>-->
+            <!--                        <el-col :span="8" style="text-align: center">-->
+            <!--                          <el-button type="info" @click="loadDialogs">加载对话</el-button>-->
+            <!--                        </el-col>-->
+            <!--                        <el-col :span="8" style="text-align: center">-->
+            <!--                          <el-button type="warning" @click="clearDialogs">清空历史</el-button>-->
+            <!--                        </el-col>-->
           </el-row>
         </el-main>
       </el-container>
@@ -91,16 +96,29 @@
 import {onMounted, ref} from 'vue'
 import ServerAPI from '../scripts/ServerAPI'
 import {ChatLineSquare, Delete, Promotion} from "@element-plus/icons-vue";
+import index from "vuex";
+
 
 const dialogs = ref([])
 const chat = ref([])
 const input = ref('')
 const isOn = ref(false)
+let currentId = ref('')
 
 const isEmpty = () => {
-  if (chat.value.length === 0) {
-    newDialog()
+  if (!currentId.value) {
+    currentId.value = crypto.randomUUID()
+    chat.value.push({
+      id: currentId.value,
+      title: input.value.slice(0, 8)
+    })
   }
+
+
+  console.log(dialogs.value)
+  console.log(chat.value)
+  console.log(currentId.value)
+  console.log("<<<<<<<<<<<<<isEmpty>>>>>>>>>>>")
 }
 
 const send = () => {
@@ -108,61 +126,87 @@ const send = () => {
   if (input.value === '') {
     input.value = '给我讲个笑话'
   }
+  isEmpty()
   dialogs.value.push({user: '你:', content: input.value})
   dialogs.value.push({user: '系统：', content: content})
-  ServerAPI.chat(input.value, data => {
+  ServerAPI.chat(input.value, (data) => {
     content += data;
     dialogs.value[dialogs.value.length - 1].content = content
+  }, () => {
     saveDialogs()
   })
+
   input.value = ''
 
+  console.log(dialogs.value)
+  console.log(chat.value)
+  console.log(currentId.value)
+  console.log("<<<<<<<<<<<<<send>>>>>>>>>>>")
+
 }
 
-// const saveDialogs = () => {
-//   ServerAPI.save(JSON.stringify(dialogs.value), data => {
-//     console.log(data)
-//     alert('保存成功！')
-//   })
-// }
-
-function saveDialogs(){
-  ServerAPI.save(JSON.stringify(dialogs.value), data => {
+function saveDialogs() {
+  ServerAPI.save(currentId.value, dialogs.value, data => {
   })
 }
 
-
-const loadDialogs = () => {
-  ServerAPI.load(data => {
+const loadDialogs = (chatId) => {
+  ServerAPI.load(chatId, data => {
+    currentId.value = chatId
     if (data !== '[]') {
       dialogs.value = JSON.parse(data)
-      alert('加载成功！')
     } else {
-      alert('没有历史记录！')
+      dialogs.value = []
     }
   })
+
+  console.log(dialogs.value)
+  console.log(currentId.value)
+  console.log(chat.value)
+  console.log("<<<<<<<<<<<<<loadDialogs>>>>>>>>>>>")
 }
 
 const clearDialogs = () => {
-  if (confirm('此操作会丢失所有聊天记录，确定要清空历史记录吗？')) {
-    ServerAPI.clear(() => {
-      dialogs.value = []
-    })
-  }
-  alert('删除成功！')
+  ServerAPI.clear(currentId.value, () => {
+    dialogs.value = []
+  })
+  chat.value.pop(chat.value[chat.value.length - 1])
+
+  newDialog()
 }
 
 
 const newDialog = () => {
   dialogs.value = []
   input.value = ''
-  // chat.value.push(dialogs.value[8].content)
-  chat.value.push(1)
+  currentId.value = null
 }
 
+const loadAll = () => {
+  ServerAPI.loadAll(data => {
+    if (data.length >0){
+      console.log(data)
+
+      currentId.value = data[0].id
+      const firstChat = JSON.parse(data[0].content)
+
+      for (let i = 0; i < firstChat.length; i++) {
+        dialogs.value.push({user: firstChat[i].user, content: firstChat[i].content})
+      }
+
+      for(let i = 0;i < data.length;i++){
+        chat.value.push({id: data[i].id, title: JSON.parse(data[i].content)[0].content})
+      }
+
+    }
+
+
+
+  })
+}
 
 onMounted(() => {
-
+  loadAll()
 })
 </script>
 
@@ -203,5 +247,31 @@ onMounted(() => {
 .title-col:hover {
   background-color: #252831; /* 鼠标悬浮时改变背景色 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 鼠标悬浮时增加阴影 */
+}
+
+/* 每个对话项的样式 */
+.dialog-item {
+  border-bottom: 1px solid #d9d9d9; /* 可选：添加分隔线 */
+}
+
+/* 偶数行设置浅灰色背景 */
+.dialog-item:nth-child(even) .grid-list {
+  background-color: #eeeeed;
+}
+
+/* 奇数行保持白色背景 */
+.dialog-item:nth-child(odd) .grid-list {
+  background-color: #f2f2f2;
+}
+
+/* span 样式 */
+.grid-list {
+  display: block; /* 确保 span 占据整行 */
+  padding: 10px;
+  border-radius: 4px; /* 可选：圆角效果 */
+}
+
+.grid-list:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 </style>

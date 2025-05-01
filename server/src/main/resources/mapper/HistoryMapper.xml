@@ -4,25 +4,54 @@
 
     <resultMap id="HistoryResultMap" type="com.example.demo.model.History">
         <result property="userId" column="user_id" jdbcType="VARCHAR"/>
-        <result property="history" column="history" jdbcType="VARCHAR"/>
+        <result property="chatId" column="chat_id" jdbcType="VARCHAR"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.example.demo.model.History">
-        insert into history (user_id, history)
-        values (#{userId}, #{history})
+        insert into history (user_id, chat_id, content)
+        values (#{userId}, #{chatId}, #{content})
+    </insert>
+
+    <insert id="updateContent" parameterType="com.example.demo.model.History">
+        insert into history (content)
+        values (#{content}) where user_id = #{userId} and chat_id = #{chatId}
     </insert>
 
     <insert id="update" parameterType="com.example.demo.model.History">
-        update history set history = #{history}
+        update history
+        set content = #{content}
         where user_id = #{userId}
+          and chat_id = #{chatId}
     </insert>
 
     <select id="findByUserId" resultMap="HistoryResultMap">
-        select * from history where user_id = #{userId}
+        select *
+        from history
+        where user_id = #{userId}
+    </select>
+
+    <select id="findByChatId" resultMap="HistoryResultMap">
+        select *
+        from history
+        where chat_id = #{chatId}
+    </select>
+
+    <select id="findByUserIdAndChatId" resultMap="HistoryResultMap">
+        select *
+        from history
+        where user_id = #{userId}
+          and chat_id = #{chatId}
     </select>
 
     <delete id="clear" parameterType="com.example.demo.model.History">
-        delete from history where user_id = #{userId}
+        delete
+        from history
+        where chat_id = #{chatId}
     </delete>
+
+    <select id="findAllChat" resultType="com.example.demo.model.History">
+        select * from history
+        where user_id = #{userId}
+    </select>
 
 </mapper>

@@ -7,18 +7,18 @@ import java.util.Optional;
 
 public class ThreadLocalHolder {
 
-    public static ThreadLocal<AuthUser> threadLocal = new ThreadLocal<>();
+    public static ThreadLocal<AuthUser> userThread = new ThreadLocal<>();
 
     public static void setAuthUser(AuthUser accountUser) {
-        threadLocal.set(accountUser);
+        userThread.set(accountUser);
     }
 
     public static AuthUser getAuthUser() {
-        return threadLocal.get();
+        return userThread.get();
     }
 
     public static String getUserId() {
-        return Optional.ofNullable(threadLocal.get()).map(accountUser -> accountUser.getUserId()).orElse(Strings.EMPTY);
+        return Optional.ofNullable(userThread.get()).map(accountUser -> accountUser.getUserId()).orElse(Strings.EMPTY);
     }
 
 

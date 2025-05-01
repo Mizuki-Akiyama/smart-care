@@ -11,6 +11,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class History {
     private String userId;
-    private String history;
     private String chatId;
+    private String content;
 }
