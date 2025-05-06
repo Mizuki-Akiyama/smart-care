@@ -47,11 +47,6 @@
               <div v-for="dialog in dialogs" id="dialog" :key="index" class="dialog-item">
                 <span class="grid-list">{{ dialog.user }}{{ dialog.content }}</span>
               </div>
-
-              <!--              <el-table :data="dialogs" v-for="dialog in dialogs" id="dialog" stripe style="width: 100%">-->
-              <!--                <el-table-column prop={{dialog.user}} width="180" />{{dialog.content}}-->
-              <!--              </el-table>-->
-
             </el-col>
           </el-row>
           <el-row style="padding-top: 10px">
@@ -74,15 +69,6 @@
             <el-col :span="24"></el-col>
           </el-row>
           <el-row>
-            <!--                        <el-col :span="8" style="text-align: center">-->
-            <!--                          <el-button type="success" @click="saveDialogs">保存对话</el-button>-->
-            <!--                        </el-col>-->
-            <!--                        <el-col :span="8" style="text-align: center">-->
-            <!--                          <el-button type="info" @click="loadDialogs">加载对话</el-button>-->
-            <!--                        </el-col>-->
-            <!--                        <el-col :span="8" style="text-align: center">-->
-            <!--                          <el-button type="warning" @click="clearDialogs">清空历史</el-button>-->
-            <!--                        </el-col>-->
           </el-row>
         </el-main>
       </el-container>
@@ -104,28 +90,26 @@ const chat = ref([])
 const input = ref('')
 const isOn = ref(false)
 let currentId = ref('')
+let isProcessing = false
 
 const isEmpty = () => {
-  if (!currentId.value) {
-    currentId.value = crypto.randomUUID()
-    chat.value.push({
-      id: currentId.value,
-      title: input.value.slice(0, 8)
-    })
-  }
 
-
-  console.log(dialogs.value)
-  console.log(chat.value)
-  console.log(currentId.value)
-  console.log("<<<<<<<<<<<<<isEmpty>>>>>>>>>>>")
+    if (!currentId.value) {
+      currentId.value = crypto.randomUUID()
+      chat.value.push({
+        id: currentId.value,
+        title: input.value.slice(0, 8)
+      })
+    }
 }
 
 const send = () => {
+
   let content = '';
   if (input.value === '') {
     input.value = '给我讲个笑话'
   }
+  isProcessing=true
   isEmpty()
   dialogs.value.push({user: '你:', content: input.value})
   dialogs.value.push({user: '系统：', content: content})
@@ -133,15 +117,12 @@ const send = () => {
     content += data;
     dialogs.value[dialogs.value.length - 1].content = content
   }, () => {
+    isProcessing=false
     saveDialogs()
   })
 
   input.value = ''
 
-  console.log(dialogs.value)
-  console.log(chat.value)
-  console.log(currentId.value)
-  console.log("<<<<<<<<<<<<<send>>>>>>>>>>>")
 
 }
 
@@ -151,35 +132,42 @@ function saveDialogs() {
 }
 
 const loadDialogs = (chatId) => {
-  ServerAPI.load(chatId, data => {
-    currentId.value = chatId
-    if (data !== '[]') {
-      dialogs.value = JSON.parse(data)
-    } else {
-      dialogs.value = []
-    }
-  })
+  if (!isProcessing) {
+    ServerAPI.load(chatId, data => {
+      currentId.value = chatId
+      if (data !== '[]') {
+        dialogs.value = JSON.parse(data)
+      } else {
+        dialogs.value = []
+      }
+    })
 
-  console.log(dialogs.value)
-  console.log(currentId.value)
-  console.log(chat.value)
-  console.log("<<<<<<<<<<<<<loadDialogs>>>>>>>>>>>")
+  }
+
 }
 
 const clearDialogs = () => {
+
+  if(!isProcessing) {
+
   ServerAPI.clear(currentId.value, () => {
     dialogs.value = []
   })
   chat.value.pop(chat.value[chat.value.length - 1])
 
   newDialog()
+  }
 }
 
 
 const newDialog = () => {
-  dialogs.value = []
-  input.value = ''
-  currentId.value = null
+  if (!isProcessing) {
+
+    dialogs.value = []
+    input.value = ''
+    currentId.value = null
+  }
+
 }
 
 const loadAll = () => {
@@ -188,19 +176,12 @@ const loadAll = () => {
       console.log(data)
 
       currentId.value = data[0].id
-      const firstChat = JSON.parse(data[0].content)
-
-      for (let i = 0; i < firstChat.length; i++) {
-        dialogs.value.push({user: firstChat[i].user, content: firstChat[i].content})
-      }
 
       for(let i = 0;i < data.length;i++){
         chat.value.push({id: data[i].id, title: JSON.parse(data[i].content)[0].content})
       }
 
     }
-
-
 
   })
 }
