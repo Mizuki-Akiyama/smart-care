@@ -25,11 +25,23 @@
                            v-for="item in chat" :key="item" @click="loadDialogs(item.id)">
                   <p class="text-item">
                     {{ item.title }}
-                    <el-button @click="clearDialogs">
-                      <el-icon>
-                        <Delete/>
-                      </el-icon>
-                    </el-button>
+
+                    <el-popconfirm
+                        :icon="InfoFilled"
+                        width="220"
+                        icon-color="#626AEF"
+                        title="这会彻底删除聊天记录，确定要继续吗"
+                        @confirm="clearDialogs(item.id)"
+                        placement="right-start"
+                    >
+                      <template #reference>
+                        <el-button color="#0e1422" style="margin-left: 7px">
+                          <el-icon>
+                            <Delete/>
+                          </el-icon>
+                        </el-button>
+                      </template>
+                    </el-popconfirm>
                   </p>
                 </el-button>
               </div>
@@ -56,7 +68,7 @@
             </el-col>
             <el-col :span="1"></el-col>
             <el-col :span="3">
-              <el-button type="primary" @click="send" style="border-radius: 2px; /* 增加圆角 */
+              <el-button @click="send" size="large" style="font-size: 20px; border-radius: 2px; /* 增加圆角 */
   box-shadow: 0 2px 4px rgb(0, 0, 0); /* 增加阴影 */
   transition: box-shadow 0.3s ease, background-color 0.3s ease;">
                 <el-icon style="">
@@ -81,7 +93,7 @@
 <script setup>
 import {onMounted, ref} from 'vue'
 import ServerAPI from '../scripts/ServerAPI'
-import {ChatLineSquare, Delete, Promotion} from "@element-plus/icons-vue";
+import {ChatLineSquare, Delete, Promotion, InfoFilled} from "@element-plus/icons-vue";
 import index from "vuex";
 
 
@@ -94,22 +106,25 @@ let isProcessing = false
 
 const isEmpty = () => {
 
-    if (!currentId.value) {
-      currentId.value = crypto.randomUUID()
-      chat.value.push({
-        id: currentId.value,
-        title: input.value.slice(0, 8)
-      })
-    }
+  if (!currentId.value) {
+    currentId.value = crypto.randomUUID()
+    chat.value.push({
+      id: currentId.value,
+      title: input.value.slice(0, 8)
+    })
+  }
 }
 
 const send = () => {
+  if (isProcessing) {
+    return
+  }
 
   let content = '';
   if (input.value === '') {
     input.value = '给我讲个笑话'
   }
-  isProcessing=true
+  isProcessing = true
   isEmpty()
   dialogs.value.push({user: '你:', content: input.value})
   dialogs.value.push({user: '系统：', content: content})
@@ -117,7 +132,7 @@ const send = () => {
     content += data;
     dialogs.value[dialogs.value.length - 1].content = content
   }, () => {
-    isProcessing=false
+    isProcessing = false
     saveDialogs()
   })
 
@@ -141,21 +156,22 @@ const loadDialogs = (chatId) => {
         dialogs.value = []
       }
     })
-
   }
 
 }
 
-const clearDialogs = () => {
+const clearDialogs = (chatId) => {
 
-  if(!isProcessing) {
+  if (!isProcessing) {
 
-  ServerAPI.clear(currentId.value, () => {
-    dialogs.value = []
-  })
-  chat.value.pop(chat.value[chat.value.length - 1])
-
-  newDialog()
+    ServerAPI.clear(chatId, () => {
+      dialogs.value = []
+    })
+    chat.value = chat.value.filter(item => item.id !== chatId)
+    if (currentId.value === chatId) {
+      currentId.value = null
+      newDialog()
+    }
   }
 }
 
@@ -172,12 +188,12 @@ const newDialog = () => {
 
 const loadAll = () => {
   ServerAPI.loadAll(data => {
-    if (data.length >0){
+    if (data.length > 0) {
       console.log(data)
 
       currentId.value = data[0].id
 
-      for(let i = 0;i < data.length;i++){
+      for (let i = 0; i < data.length; i++) {
         chat.value.push({id: data[i].id, title: JSON.parse(data[i].content)[0].content})
       }
 
