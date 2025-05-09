@@ -105,7 +105,6 @@ let currentId = ref('')
 let isProcessing = false
 
 const isEmpty = () => {
-
   if (!currentId.value) {
     currentId.value = crypto.randomUUID()
     chat.value.push({

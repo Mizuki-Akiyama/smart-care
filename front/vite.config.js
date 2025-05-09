@@ -17,7 +17,7 @@ export default defineConfig({
     host: "0.0.0.0",
     cors: true,
     port: 8991,
-    open: false, //自动打开
+    open: true, //自动打开
     proxy: {
       '/server-api': {
         target: 'http://localhost:7980',
