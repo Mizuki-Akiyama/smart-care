@@ -1,10 +1,10 @@
 
-function chat(msg, callback, finish) {
-    const eventSource = new EventSource(`/server-api/ai/stream?msg=` + msg);
+function chat(chatId, msg, callback, finish) {
+    const eventSource = new EventSource(`/server-api/ai/stream?msg=` + msg + `&chatId=` + chatId);
     eventSource.onmessage = function(event) {
         const data = JSON.parse(event.data)
-        callback(data.result.output.content,null)
-        if (data.result.metadata.finishReason==='unknown'){
+        callback(data.result.output.text,null)
+        if (data.result.metadata.finishReason==='stop'){
             eventSource.close()
             finish()
         }

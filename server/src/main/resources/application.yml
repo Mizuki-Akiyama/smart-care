@@ -6,6 +6,9 @@ spring:
     url: jdbc:mysql://localhost:3306/smart_care_db?serverTimezone=GMT%2B8
     username: root
     password: jyk7890./
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.chat.memory.jdbc.autoconfigure.JdbcChatMemoryAutoConfiguration
   ai:
     ollama:
       base-url: http://127.0.0.1:11434

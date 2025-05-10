@@ -1,20 +1,18 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : test
+ Source Server         : 新建连接
  Source Server Type    : MySQL
- Source Server Version : 80030
+ Source Server Version : 80041
  Source Host           : localhost:3306
  Source Schema         : smart_care_db
 
  Target Server Type    : MySQL
- Target Server Version : 80030
+ Target Server Version : 80041
  File Encoding         : 65001
 
- Date: 14/01/2025 14:55:37
+ Date: 09/05/2025 18:36:28
 */
-create database smart_care_db;
-use smart_care_db;
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -24,11 +22,13 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `history`;
 CREATE TABLE `history`  (
+  `id` int NOT NULL AUTO_INCREMENT,
   `user_id` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
-  `history` text CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
-  `date` datetime NULL DEFAULT NULL,
-  PRIMARY KEY (`user_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_unicode_ci ROW_FORMAT = Dynamic;
+  `chat_id` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `content` text CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `u`(`chat_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 52 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for users
@@ -40,6 +40,6 @@ CREATE TABLE `users`  (
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `username`(`username` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
 SET FOREIGN_KEY_CHECKS = 1;

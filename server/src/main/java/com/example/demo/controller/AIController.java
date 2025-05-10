@@ -2,9 +2,8 @@ package com.example.demo.controller;
 
 
 import com.example.demo.model.Dialogs;
-import com.example.demo.model.History;
 import com.example.demo.service.OllamaService;
-import org.springframework.ai.chat.ChatResponse;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +30,7 @@ public class AIController {
 
     @PostMapping("/save/{chatId}")
     public ResponseEntity save(@PathVariable("chatId") String chatId, @RequestBody Dialogs dialogs) {
-        System.out.println(dialogs.getData());
+//        System.out.println(dialogs.getData());
         ollamaService.save(dialogs,chatId);
         return ResponseEntity.ok().build();
     }
@@ -67,8 +66,8 @@ public class AIController {
 //
 //    }
     @GetMapping(value = "/stream",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ChatResponse> stream(@RequestParam (value = "msg",defaultValue = "给我讲个笑话") String msg){
-        return ollamaService.chat(msg);
+    public Flux<ChatResponse> stream(@RequestParam (value = "msg",defaultValue = "给我讲个笑话") String msg,@RequestParam("chatId") String chatId){
+        return ollamaService.chat(chatId,msg);
     }
 
 }

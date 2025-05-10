@@ -55,11 +55,13 @@
             <el-col :span="24" class="title-col">对话</el-col>
           </el-row>
           <el-row>
-            <el-col :span="24" style="background-color: #f2f2f2;min-height: 685px">
-              <div v-for="dialog in dialogs" id="dialog" :key="index" class="dialog-item">
-                <span class="grid-list">{{ dialog.user }}{{ dialog.content }}</span>
-              </div>
-            </el-col>
+              <el-col :span="24" style="background-color: #f2f2f2;min-height: 685px">
+                <el-scrollbar max-height="685px">
+                <div v-for="dialog in dialogs" id="dialog" :key="index" class="dialog-item">
+                  <span class="grid-list">{{ dialog.user }}{{ dialog.content }}</span>
+                </div>
+                </el-scrollbar>
+              </el-col>
           </el-row>
           <el-row style="padding-top: 10px">
             <el-col :span="20">
@@ -127,7 +129,7 @@ const send = () => {
   isEmpty()
   dialogs.value.push({user: '你:', content: input.value})
   dialogs.value.push({user: '系统：', content: content})
-  ServerAPI.chat(input.value, (data) => {
+  ServerAPI.chat(currentId.value, input.value, (data) => {
     content += data;
     dialogs.value[dialogs.value.length - 1].content = content
   }, () => {
@@ -188,12 +190,11 @@ const newDialog = () => {
 const loadAll = () => {
   ServerAPI.loadAll(data => {
     if (data.length > 0) {
-      console.log(data)
 
       currentId.value = data[0].id
 
       for (let i = 0; i < data.length; i++) {
-        chat.value.push({id: data[i].id, title: JSON.parse(data[i].content)[0].content})
+        chat.value.push({id: data[i].id, title: JSON.parse(data[i].content)[0].content.slice(0, 8)})
       }
 
     }

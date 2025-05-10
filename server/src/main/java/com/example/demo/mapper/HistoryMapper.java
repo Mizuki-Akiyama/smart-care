@@ -15,8 +15,6 @@ public interface HistoryMapper {
 
     void clear(String chatId);
 
-    Optional<History> findByUserId(String userId);
-
     Optional<History> findByChatId(String chatId);
 
     Optional<History> findByUserIdAndChatId(String userId, String chatId);
