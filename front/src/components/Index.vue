@@ -55,13 +55,18 @@
             <el-col :span="24" class="title-col">对话</el-col>
           </el-row>
           <el-row>
-              <el-col :span="24" style="background-color: #f2f2f2;min-height: 685px">
-                <el-scrollbar max-height="685px">
+            <el-col :span="24" style="background-color: #f2f2f2;min-height: 685px">
+              <el-scrollbar max-height="685px" ref="scrollRef">
                 <div v-for="dialog in dialogs" id="dialog" :key="index" class="dialog-item">
-                  <span class="grid-list">{{ dialog.user }}{{ dialog.content }}</span>
+                  <div class="grid-list">
+                    <span>
+                      {{ dialog.user }}
+                      <v-md-preview :text="dialog.content"></v-md-preview>
+                    </span>
+                  </div>
                 </div>
-                </el-scrollbar>
-              </el-col>
+              </el-scrollbar>
+            </el-col>
           </el-row>
           <el-row style="padding-top: 10px">
             <el-col :span="20">
@@ -71,8 +76,8 @@
             <el-col :span="1"></el-col>
             <el-col :span="3">
               <el-button @click="send" size="large" style="font-size: 20px; border-radius: 2px; /* 增加圆角 */
-  box-shadow: 0 2px 4px rgb(0, 0, 0); /* 增加阴影 */
-  transition: box-shadow 0.3s ease, background-color 0.3s ease;">
+                          box-shadow: 0 2px 4px rgb(0, 0, 0); /* 增加阴影 */
+                          transition: box-shadow 0.3s ease, background-color 0.3s ease;">
                 <el-icon style="">
                   <Promotion/>
                 </el-icon>
@@ -89,15 +94,14 @@
     </el-container>
   </div>
 
-</template>
+</template>\
 
 
 <script setup>
-import {onMounted, ref} from 'vue'
+import {nextTick, onMounted, ref, watch} from 'vue'
 import ServerAPI from '../scripts/ServerAPI'
 import {ChatLineSquare, Delete, Promotion, InfoFilled} from "@element-plus/icons-vue";
 import index from "vuex";
-
 
 const dialogs = ref([])
 const chat = ref([])
@@ -105,6 +109,21 @@ const input = ref('')
 const isOn = ref(false)
 let currentId = ref('')
 let isProcessing = false
+
+const scrollRef = ref()
+
+const autoScroll = () => {
+  nextTick(() => {
+      const scroll = scrollRef.value;
+      scroll.wrapRef.scrollTop = scroll.wrapRef.scrollHeight;
+      const wrap = scroll.$el.querySelector('.el-scrollbar__wrap');
+      scroll.setScrollTop(wrap.scrollHeight);
+  });
+};
+
+watch(dialogs, () => {
+  autoScroll();
+},{deep: true});
 
 const isEmpty = () => {
   if (!currentId.value) {
@@ -127,14 +146,17 @@ const send = () => {
   }
   isProcessing = true
   isEmpty()
-  dialogs.value.push({user: '你:', content: input.value})
+  dialogs.value.push({user: '你：', content: input.value})
   dialogs.value.push({user: '系统：', content: content})
   ServerAPI.chat(currentId.value, input.value, (data) => {
+
     content += data;
     dialogs.value[dialogs.value.length - 1].content = content
+
   }, () => {
     isProcessing = false
     saveDialogs()
+    autoScroll()
   })
 
   input.value = ''
