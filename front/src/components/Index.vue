@@ -18,34 +18,84 @@
               </el-icon>
               <p style="font-size: 15px">开启新对话</p>
             </el-button>
+            <el-divider border-style="hidden"/>
+            <div>
+              <el-scrollbar height="710px">
 
-            <el-scrollbar height="710px">
-              <div>
-                <el-button :class="{new:isOn}" size="large" color="#0e1422" style="width: 230px;" round
-                           v-for="item in chat" :key="item" @click="loadDialogs(item.id)">
+                <el-button size="large" color="#0e1422" style="width: 230px;" round
+                           v-for="item in chat" :key="item"
+                           @mouseenter="item.isHover = true"
+                           @mouseleave="item.isHover = false"
+                           >
+
                   <p class="text-item">
+                     <span v-if="!item.isEditing" @click="loadDialogs(item.id)">
                     {{ item.title }}
 
-                    <el-popconfirm
-                        :icon="InfoFilled"
-                        width="220"
-                        icon-color="#626AEF"
-                        title="这会彻底删除聊天记录，确定要继续吗"
-                        @confirm="clearDialogs(item.id)"
-                        placement="right-start"
-                    >
-                      <template #reference>
-                        <el-button color="#0e1422" style="margin-left: 7px">
-                          <el-icon>
-                            <Delete/>
-                          </el-icon>
-                        </el-button>
+
+                    <!--                    <el-popconfirm-->
+                    <!--                        :icon="InfoFilled"-->
+                    <!--                        width="220"-->
+                    <!--                        icon-color="#626AEF"-->
+                    <!--                        title="这会彻底删除聊天记录，确定要继续吗"-->
+                    <!--                        @confirm="clearDialogs(item.id)"-->
+                    <!--                        placement="right-start"-->
+                    <!--                    >-->
+                    <!--                      <template #reference>-->
+                    <!--                        <el-button color="#0e1422" style="margin-left: 7px" size="small" v-show="item.isHover">-->
+                    <!--                          <el-icon size="10px">-->
+                    <!--                            <MoreFilled/>-->
+                    <!--                          </el-icon>-->
+                    <!--                        </el-button>-->
+                    <!--                      </template>-->
+                    <!--                    </el-popconfirm>-->
+
+                    <el-dropdown size="small" placement="bottom-start" trigger="click">
+                      <span>
+                      <el-icon color="#0e1422" style="margin-left: 7px" v-show="item.isHover">
+                        <MoreFilled/>
+                      </el-icon>
+                        </span>
+                      <template #dropdown>
+                        <el-dropdown-menu>
+                          <el-dropdown-item >
+                            <el-button @click="startEdit(item)" text>
+                              <el-icon>
+                                <Edit />
+                              </el-icon>
+                              重命名
+                            </el-button>
+                          </el-dropdown-item>
+                          <el-dropdown-item >
+                            <el-button @click="clearDialogs(item.id)" text>
+                              <el-icon>
+                                <Delete/>
+                              </el-icon>
+                              删除
+                            </el-button>
+                          </el-dropdown-item>
+                        </el-dropdown-menu>
                       </template>
-                    </el-popconfirm>
+                    </el-dropdown>
+                     </span>
+
+                    <el-input
+                        v-else
+                        v-model="item.editingTitle"
+                        size="default"
+                        style="width: 180px"
+                        @keyup.enter="confirmEdit(item)"
+                        @blur="confirmEdit(item)"
+                        @keyup.esc="cancelEdit(item)"
+                        autofocus
+                    />
                   </p>
+
+
                 </el-button>
-              </div>
-            </el-scrollbar>
+
+              </el-scrollbar>
+            </div>
           </div>
         </el-aside>
 
@@ -94,19 +144,28 @@
     </el-container>
   </div>
 
-</template>\
+</template>
 
 
 <script setup>
 import {nextTick, onMounted, ref, watch} from 'vue'
 import ServerAPI from '../scripts/ServerAPI'
-import {ChatLineSquare, Delete, Promotion, InfoFilled} from "@element-plus/icons-vue";
+import {
+  ChatLineSquare,
+  Delete,
+  Promotion,
+  InfoFilled,
+  MoreFilled,
+  More,
+  Operation,
+  Tools, Edit
+} from "@element-plus/icons-vue";
 import index from "vuex";
+import {ElMessage, ElMessageBox} from "element-plus";
 
 const dialogs = ref([])
 const chat = ref([])
 const input = ref('')
-const isOn = ref(false)
 let currentId = ref('')
 let isProcessing = false
 
@@ -114,23 +173,24 @@ const scrollRef = ref()
 
 const autoScroll = () => {
   nextTick(() => {
-      const scroll = scrollRef.value;
-      scroll.wrapRef.scrollTop = scroll.wrapRef.scrollHeight;
-      const wrap = scroll.$el.querySelector('.el-scrollbar__wrap');
-      scroll.setScrollTop(wrap.scrollHeight);
+    const scroll = scrollRef.value;
+    scroll.wrapRef.scrollTop = scroll.wrapRef.scrollHeight;
+    const wrap = scroll.$el.querySelector('.el-scrollbar__wrap');
+    scroll.setScrollTop(wrap.scrollHeight);
   });
 };
 
 watch(dialogs, () => {
   autoScroll();
-},{deep: true});
+}, {deep: true});
 
 const isEmpty = () => {
   if (!currentId.value) {
     currentId.value = crypto.randomUUID()
     chat.value.push({
       id: currentId.value,
-      title: input.value.slice(0, 8)
+      title: input.value.slice(0, 8),
+      isHover: false
     })
   }
 }
@@ -161,11 +221,33 @@ const send = () => {
 
   input.value = ''
 
+}
 
+const startEdit = (item) => {
+  item.isEditing = true
+  item.editingTitle = item.title // 初始化编辑文本
+}
+
+const confirmEdit = (item) => {
+  if (item.editingTitle.trim()) {
+    item.title = item.editingTitle // 临时更新标题
+    item.isEditing = false
+
+    ServerAPI.setTitle(item.id, item.editingTitle, () => {
+
+    })
+  }
+  item.isEditing = false
+}
+
+const cancelEdit = (item) => {
+  item.isEditing = false
+  item.editingTitle = ''
 }
 
 function saveDialogs() {
-  ServerAPI.save(currentId.value, dialogs.value, data => {
+  ServerAPI.save(currentId.value, dialogs.value, () => {
+    console.log(chat.value)
   })
 }
 
@@ -185,17 +267,35 @@ const loadDialogs = (chatId) => {
 
 const clearDialogs = (chatId) => {
 
-  if (!isProcessing) {
+  ElMessageBox.confirm(
+      '这会彻底删除聊天记录，确定要继续吗?',
+      '警告',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        icon: 'warning',
+      }
+  )
+      .then(() => {
+        if (!isProcessing) {
 
-    ServerAPI.clear(chatId, () => {
-      dialogs.value = []
-    })
-    chat.value = chat.value.filter(item => item.id !== chatId)
-    if (currentId.value === chatId) {
-      currentId.value = null
-      newDialog()
-    }
-  }
+          ServerAPI.clear(chatId, () => {
+            dialogs.value = []
+          })
+          chat.value = chat.value.filter(item => item.id !== chatId)
+          if (currentId.value === chatId) {
+            currentId.value = null
+            newDialog()
+          }
+
+          ElMessage({
+            type: 'success',
+            message: '删除成功',
+          })
+        }
+
+      })
+
 }
 
 
@@ -216,7 +316,16 @@ const loadAll = () => {
       currentId.value = data[0].id
 
       for (let i = 0; i < data.length; i++) {
-        chat.value.push({id: data[i].id, title: JSON.parse(data[i].content)[0].content.slice(0, 8)})
+        const title = data[i].title
+            ? data[i].title
+            : JSON.parse(data[i].content)[0]?.content.slice(0, 8)
+
+        chat.value.push({
+          id: data[i].id,
+          title: title,
+          isHover: false
+        })
+
       }
 
     }
@@ -232,8 +341,8 @@ onMounted(() => {
 <style>
 
 .text-item {
-  text-align: center;
-  font-size: 12px;
+  text-align: left;
+  font-size: 13px;
 }
 
 .new {
@@ -293,4 +402,6 @@ onMounted(() => {
 .grid-list:hover {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+
 </style>

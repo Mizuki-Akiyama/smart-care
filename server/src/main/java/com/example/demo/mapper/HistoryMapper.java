@@ -9,11 +9,13 @@ import java.util.Optional;
 @Mapper
 public interface HistoryMapper {
 
-    int update(History history);
+    void update(History history);
 
-    int insert(History history);
+    void insert(History history);
 
     void clear(String chatId);
+
+    void setTitle(String chatId, String userId, String title);
 
     Optional<History> findByChatId(String chatId);
 

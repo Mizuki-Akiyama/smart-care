@@ -13,4 +13,5 @@ public class History {
     private String userId;
     private String chatId;
     private String content;
+    private String title;
 }

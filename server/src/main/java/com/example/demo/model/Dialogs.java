@@ -12,5 +12,6 @@ import lombok.experimental.Accessors;
 public class Dialogs {
 
     private String data;
+    private String title;
 
 }

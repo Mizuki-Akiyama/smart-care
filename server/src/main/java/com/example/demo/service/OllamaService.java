@@ -55,7 +55,7 @@ public class OllamaService {
 
     public void save(Dialogs dialogs, String chatId) {
         String userId = ThreadLocalHolder.getAuthUser().getUserId();
-        History h = new History().setUserId(userId).setChatId(chatId).setContent(dialogs.getData());
+        History h = new History().setUserId(userId).setChatId(chatId).setContent(dialogs.getData()).setTitle(dialogs.getTitle());
         Optional<History> opHistory = historyMapper.findByUserIdAndChatId(userId, chatId);
         Optional<History> optionalHistory = historyMapper.findByChatId(chatId);
         if (opHistory.isPresent()) {
@@ -70,12 +70,23 @@ public class OllamaService {
 
     }
 
+    public void setTitle(String chatId, String title) {
+        String userId = ThreadLocalHolder.getAuthUser().getUserId();
+        Optional<History> opHistory = historyMapper.findByUserIdAndChatId(userId, chatId);
+        if (opHistory.isPresent()) {
+            historyMapper.setTitle(chatId, userId, title);
+        }else {
+            return;
+        }
+    }
+
     public Dialogs load(String chatId) {
         String userId = ThreadLocalHolder.getAuthUser().getUserId();
         Optional<History> opHistory = historyMapper.findByUserIdAndChatId(userId, chatId);
         if (opHistory.isPresent()) {
             Dialogs dialogs = new Dialogs();
             dialogs.setData(opHistory.get().getContent());
+            dialogs.setTitle(opHistory.get().getTitle());
             return dialogs;
         }
         return null;
@@ -104,6 +115,9 @@ public class OllamaService {
                     // 使用该对话的第一条记录的内容作为标题
                     String content = entry.getValue().get(0).getContent();
                     map.put("content", content);
+
+                    String title = entry.getValue().get(0).getTitle();
+                    map.put("title", title);
 
                     return map;
                 })

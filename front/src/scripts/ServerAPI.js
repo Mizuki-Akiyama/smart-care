@@ -1,10 +1,9 @@
-
 function chat(chatId, msg, callback, finish) {
     const eventSource = new EventSource(`/server-api/ai/stream?msg=` + msg + `&chatId=` + chatId);
-    eventSource.onmessage = function(event) {
+    eventSource.onmessage = function (event) {
         const data = JSON.parse(event.data)
-        callback(data.result.output.text,null)
-        if (data.result.metadata.finishReason==='stop'){
+        callback(data.result.output.text, null)
+        if (data.result.metadata.finishReason === 'stop') {
             eventSource.close()
             finish()
         }
@@ -16,7 +15,7 @@ function save(chatId, data, callback) {
     // headers.append('Authorization', store.state.userId);
     // headers.append('Authorization', "jyk");
     headers.append('Content-Type', 'application/json')
-    fetch('/server-api/ai/save/'+chatId, {
+    fetch('/server-api/ai/save/' + chatId, {
         method: 'POST',
         headers: headers,
         body: JSON.stringify({'data': JSON.stringify(data)}),
@@ -32,7 +31,7 @@ function save(chatId, data, callback) {
     });
 }
 
-function load(chatId,callback) {
+function load(chatId, callback) {
     fetch('/server-api/ai/load/' + chatId, {
         method: 'GET',
     }).then((response) => {
@@ -41,14 +40,14 @@ function load(chatId,callback) {
         }
 
         response.json()
-            .then((data) =>  {
+            .then((data) => {
                 callback(data.data)
             });
     })
 
 }
 
-function clear(chatId,callback) {
+function clear(chatId, callback) {
     fetch('/server-api/ai/clear/' + chatId, {
         method: 'DELETE',
     }).then(response => {
@@ -66,7 +65,7 @@ function clear(chatId,callback) {
 function loadAll(callback) {
     fetch('/server-api/ai/loadAll', {
         method: 'GET',
-    }).then(response=> {
+    }).then(response => {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -78,10 +77,29 @@ function loadAll(callback) {
     })
 }
 
+function setTitle(chatId, title, callback) {
+    fetch('/server-api/ai/setTitle?chatId=' + chatId + '&title=' + title, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: title,
+    }).then(response=>{
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return response.text()
+    }).then(()=>{
+        callback()
+    })
+}
+
 export default {
     chat: chat,
     save: save,
     load: load,
     clear: clear,
     loadAll: loadAll,
+    setTitle: setTitle,
 }

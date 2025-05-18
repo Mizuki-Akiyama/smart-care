@@ -8,21 +8,25 @@
     </resultMap>
 
     <insert id="insert" parameterType="com.example.demo.model.History">
-        insert into history (user_id, chat_id, content)
-        values (#{userId}, #{chatId}, #{content})
-    </insert>
-
-    <insert id="updateContent" parameterType="com.example.demo.model.History">
-        insert into history (content)
-        values (#{content}) where user_id = #{userId} and chat_id = #{chatId}
+        insert into history (user_id, chat_id, content, title)
+        values (#{userId}, #{chatId}, #{content}, #{title})
     </insert>
 
     <insert id="update" parameterType="com.example.demo.model.History">
         update history
-        set content = #{content}
+        set
+            content = #{content},
+            title = #{title}
         where user_id = #{userId}
           and chat_id = #{chatId}
     </insert>
+
+    <update id="setTitle" parameterType="com.example.demo.model.History">
+        update history
+        set title = #{title}
+        where user_id = #{userId}
+          and chat_id = #{chatId}
+    </update>
 
     <select id="findByUserId" resultMap="HistoryResultMap">
         select *

@@ -51,23 +51,17 @@ public class AIController {
     public ResponseEntity loadAll() {
         return ResponseEntity.ok().body(ollamaService.loadAll());
     }
-//    @GetMapping("/steam")
-//    public Flux<String> stream(@RequestParam(value = "message", defaultValue = "1+1=?") String message) {
-//
-//        return streamingChatClient.stream(message);
-//    }
 
 
-//    public Flux<ServerSentEvent<String>> stream(@RequestParam (value = "msg",defaultValue = "给我讲个笑话") String msg){
-//        return ollamaService.chat(msg)
-//                .map(string -> ServerSentEvent.<String>builder()
-//                        .data(string)
-//                        .build());
-//
-//    }
     @GetMapping(value = "/stream",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ChatResponse> stream(@RequestParam (value = "msg",defaultValue = "给我讲个笑话") String msg,@RequestParam("chatId") String chatId){
         return ollamaService.chat(chatId,msg);
+    }
+
+    @PostMapping("/setTitle")
+    public ResponseEntity setTitle(@RequestParam("chatId") String chatId,@RequestParam("title") String title){
+        ollamaService.setTitle(chatId,title);
+        return ResponseEntity.ok().build();
     }
 
 }
