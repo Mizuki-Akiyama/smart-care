@@ -1,5 +1,12 @@
+import router from "@/router/index.js";
+
+const headers = new Headers();
+headers.append('Content-Type', 'application/json')
+headers.append("Authorization", "Bearer " + localStorage.getItem("validUser"));
+
 function chat(chatId, msg, callback, finish) {
-    const eventSource = new EventSource(`/server-api/ai/stream?msg=` + msg + `&chatId=` + chatId);
+    const eventSource = new EventSource(`/server-api/ai/stream?msg=` + msg + `&chatId=` + chatId + '&token=' + localStorage.getItem("validUser"));
+
     eventSource.onmessage = function (event) {
         const data = JSON.parse(event.data)
         callback(data.result.output.text, null)
@@ -11,15 +18,16 @@ function chat(chatId, msg, callback, finish) {
 }
 
 function save(chatId, data, callback) {
-    const headers = new Headers();
-    // headers.append('Authorization', store.state.userId);
-    // headers.append('Authorization', "jyk");
-    headers.append('Content-Type', 'application/json')
     fetch('/server-api/ai/save/' + chatId, {
         method: 'POST',
         headers: headers,
         body: JSON.stringify({'data': JSON.stringify(data)}),
     }).then(response => {
+        if (response.status === 401) {
+            router.push('/error');
+            throw new Error('未授权，请重新登录');
+        }
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -34,7 +42,13 @@ function save(chatId, data, callback) {
 function load(chatId, callback) {
     fetch('/server-api/ai/load/' + chatId, {
         method: 'GET',
+        headers: headers,
     }).then((response) => {
+        if (response.status === 401) {
+            router.push('/error');
+            throw new Error('未授权，请重新登录');
+        }
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -50,7 +64,13 @@ function load(chatId, callback) {
 function clear(chatId, callback) {
     fetch('/server-api/ai/clear/' + chatId, {
         method: 'DELETE',
+        headers: headers,
     }).then(response => {
+        if (response.status === 401) {
+            router.push('/error');
+            throw new Error('未授权，请重新登录');
+        }
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -65,7 +85,13 @@ function clear(chatId, callback) {
 function loadAll(callback) {
     fetch('/server-api/ai/loadAll', {
         method: 'GET',
+        headers: headers,
     }).then(response => {
+        if (response.status === 401) {
+            router.push('/error');
+            throw new Error('未授权，请重新登录');
+        }
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -80,13 +106,53 @@ function loadAll(callback) {
 function setTitle(chatId, title, callback) {
     fetch('/server-api/ai/setTitle?chatId=' + chatId + '&title=' + title, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: headers,
         body: title,
     }).then(response=>{
+        if (response.status === 401) {
+            router.push('/error');
+            throw new Error('未授权，请重新登录');
+        }
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return response.text()
+    }).then(()=>{
+        callback()
+    })
+}
+
+function login(userId,password,callback){
+    fetch('/server-api/user/login' ,{
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+            userId,
+            password
+        }),
+    }).then(response=>{
+        if (!response.ok) {
+            throw new Error(response.statusText)
+        }
+
+        return response.text()
+    }).then((user)=>{
+        console.log(user)
+        localStorage.setItem("validUser",JSON.parse(user).token)
+        callback(user)
+    })
+}
+
+function register(user,callback){
+    fetch('/server-api/user/register', {
+        method: 'POST',
+        headers: headers,
+        body: user
+    }).then(response=>{
+        if (!response.ok) {
+            throw new Error(response.statusText)
         }
 
         return response.text()
@@ -102,4 +168,6 @@ export default {
     clear: clear,
     loadAll: loadAll,
     setTitle: setTitle,
+    login: login,
+    register: register,
 }

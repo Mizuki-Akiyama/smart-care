@@ -21,6 +21,4 @@ public class ThreadLocalHolder {
         return Optional.ofNullable(userThread.get()).map(accountUser -> accountUser.getUserId()).orElse(Strings.EMPTY);
     }
 
-
-
 }

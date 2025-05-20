@@ -208,7 +208,7 @@ const send = () => {
   isEmpty()
   dialogs.value.push({user: '你：', content: input.value})
   dialogs.value.push({user: '系统：', content: content})
-  ServerAPI.chat(currentId.value, input.value, (data) => {
+  ServerAPI.chat(currentId.value, input.value,(data) => {
 
     content += data;
     dialogs.value[dialogs.value.length - 1].content = content
@@ -247,7 +247,6 @@ const cancelEdit = (item) => {
 
 function saveDialogs() {
   ServerAPI.save(currentId.value, dialogs.value, () => {
-    console.log(chat.value)
   })
 }
 
