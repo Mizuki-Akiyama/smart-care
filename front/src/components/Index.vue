@@ -1,58 +1,42 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <el-header
-          style="text-align: center;background-color: #0e1422; font-size: 40px; font-family: '华文新魏';color: #f1ede4;">
-        <h4>心语智疗</h4>
-      </el-header>
 
+              <el-aside width="250px"
+                        style="text-align: center;background-color: rgb(216.8, 235.6, 255); font-size: 40px; font-family: '华文新魏';color: #303133;">
 
-      <el-container>
-        <el-aside width="250px"
-                  style="text-align: center;background-color: #0e1422; font-size: 30px; font-family: '华文新魏';color: #f1ede4;">
-          聊天历史
+<!--      <el-aside width="250px"-->
+<!--                style="text-align: center; background: linear-gradient(to bottom, rgb(197.7, 225.9, 255), rgb(216.8, 235.6, 255)); font-size: 40px; font-family: '华文新魏';color: #303133;">-->
+
+        <!--          <span style="-webkit-text-stroke: 1px rgb(159.5, 206.5, 255);">聊天历史</span>-->
+        <h4 style="margin-top: 15px">
+          <img :src="logo" style="width: 50px; height: 50px; vertical-align: middle;"/>
+          心语智疗
+        </h4>
+        <el-divider border-style="hidden"/>
+        <div>
+          <el-button size="large" color="rgb(198,226,255)" class="new" style="border-radius: 12px;" @click="newDialog">
+            <el-icon class="el-icon--left" style="margin-right: 8px" size="17" color="#303133">
+              <ChatLineSquare/>
+            </el-icon>
+            <p style="font-size: 15px; color: #303133">开启新对话</p>
+          </el-button>
           <div>
-            <el-button size="large" color="#626aef" class="new" round @click="newDialog">
-              <el-icon class="el-icon--left" style="margin-right: 8px" size="17" color="#ffffff">
-                <ChatLineSquare/>
-              </el-icon>
-              <p style="font-size: 15px">开启新对话</p>
-            </el-button>
-            <el-divider border-style="hidden"/>
-            <div>
-              <el-scrollbar height="710px">
+            <el-scrollbar height="710px">
 
-                <el-button size="large" color="#0e1422" style="width: 230px;" round
-                           v-for="item in chat" :key="item"
-                           @mouseenter="item.isHover = true"
-                           @mouseleave="item.isHover = false"
-                           >
+              <el-button size="large" color="rgb(235.9, 245.3, 255)" style="width: 200px;border-radius: 12px;"
+                         v-for="item in chat" :key="item"
+                         @mouseenter="item.isHover = true"
+                         @mouseleave="item.isHover = false"
+              >
 
-                  <p class="text-item">
+                <p class="text-item">
                      <span v-if="!item.isEditing" @click="loadDialogs(item.id)">
                     {{ item.title }}
 
-
-                    <!--                    <el-popconfirm-->
-                    <!--                        :icon="InfoFilled"-->
-                    <!--                        width="220"-->
-                    <!--                        icon-color="#626AEF"-->
-                    <!--                        title="这会彻底删除聊天记录，确定要继续吗"-->
-                    <!--                        @confirm="clearDialogs(item.id)"-->
-                    <!--                        placement="right-start"-->
-                    <!--                    >-->
-                    <!--                      <template #reference>-->
-                    <!--                        <el-button color="#0e1422" style="margin-left: 7px" size="small" v-show="item.isHover">-->
-                    <!--                          <el-icon size="10px">-->
-                    <!--                            <MoreFilled/>-->
-                    <!--                          </el-icon>-->
-                    <!--                        </el-button>-->
-                    <!--                      </template>-->
-                    <!--                    </el-popconfirm>-->
-
                     <el-dropdown size="small" placement="bottom-start" trigger="click">
                       <span>
-                      <el-icon color="#0e1422" style="margin-left: 7px" v-show="item.isHover">
+                      <el-icon color="rgb(159.5, 206.5, 255)" style="margin-left: 7px" v-show="item.isHover">
                         <MoreFilled/>
                       </el-icon>
                         </span>
@@ -79,34 +63,57 @@
                     </el-dropdown>
                      </span>
 
-                    <el-input
-                        v-else
-                        v-model="item.editingTitle"
-                        size="default"
-                        style="width: 180px"
-                        @keyup.enter="confirmEdit(item)"
-                        @blur="confirmEdit(item)"
-                        @keyup.esc="cancelEdit(item)"
-                        autofocus
-                    />
-                  </p>
+                  <el-input
+                      v-else
+                      v-model="item.editingTitle"
+                      size="default"
+                      style="width: 180px"
+                      @keyup.enter="confirmEdit(item)"
+                      @blur="confirmEdit(item)"
+                      @keyup.esc="cancelEdit(item)"
+                      autofocus
+                  />
+                </p>
 
 
-                </el-button>
+              </el-button>
 
-              </el-scrollbar>
-            </div>
+            </el-scrollbar>
           </div>
-        </el-aside>
+        </div>
+      </el-aside>
 
+      <el-container>
 
-        <el-main style="background-color: #252831">
+        <!--      <el-header-->
+        <!--          style="text-align: center;background: radial-gradient(circle, rgb(159.5, 206.5, 255),#ffffff); font-size: 40px; font-family: '华文新魏';color: #ffffff;">-->
+<!--        <el-header-->
+<!--            style="text-align: center;background-color: #2c3e50; font-size: 40px; font-family: '华文新魏';color: #ffffff;">-->
+
+<!--          <h4>-->
+<!--            <img :src="logo" style="width: 50px; height: 50px; vertical-align: middle;"/>-->
+<!--            心语智疗-->
+<!--          </h4>-->
+<!--        </el-header>-->
+
+        <el-main style="background: linear-gradient(to bottom, rgb(216.8, 235.6, 255), #ffffff)">
+<!--          <el-main style="background-color: rgb(235.9, 245.3, 255)">-->
           <el-row class="title-row">
-            <el-col :span="24" class="title-col">对话</el-col>
+            <el-col :span="2"></el-col>
+            <el-col :span="19" class="title-col">对话</el-col>
+            <el-col :span="1"></el-col>
+            <el-col :span="1">
+              <el-button link style="width: 50px;height: 50px; margin-left: 20px; font-size: 20px" :icon="Operation" />
+            </el-col>
+            <el-col :span="1">
+              <el-avatar
+                  src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+              />
+            </el-col>
           </el-row>
           <el-row>
-            <el-col :span="24" style="background-color: #f2f2f2;min-height: 685px">
-              <el-scrollbar max-height="685px" ref="scrollRef">
+            <el-col :span="24" style="min-height: 751px">
+              <el-scrollbar max-height="751px" ref="scrollRef">
                 <div v-for="dialog in dialogs" id="dialog" :key="index" class="dialog-item">
                   <div class="grid-list">
                     <span>
@@ -137,8 +144,8 @@
           <el-row style="padding-top: 10px">
             <el-col :span="24"></el-col>
           </el-row>
-          <el-row>
-          </el-row>
+<!--          <el-row>-->
+<!--          </el-row>-->
         </el-main>
       </el-container>
     </el-container>
@@ -154,15 +161,17 @@ import {
   ChatLineSquare,
   Delete,
   Promotion,
-  InfoFilled,
   MoreFilled,
-  More,
-  Operation,
-  Tools, Edit
+  Edit, Operation
 } from "@element-plus/icons-vue";
 import index from "vuex";
 import {ElMessage, ElMessageBox} from "element-plus";
+import logo from '@/components/icons/NoBackgroundLogo.png'
+import {useRoute} from "vue-router";
 
+
+let currentUser = {}
+const route = useRoute()
 const dialogs = ref([])
 const chat = ref([])
 const input = ref('')
@@ -206,7 +215,7 @@ const send = () => {
   }
   isProcessing = true
   isEmpty()
-  dialogs.value.push({user: '你：', content: input.value})
+  dialogs.value.push({user: currentUser.userName + '：', content: input.value})
   dialogs.value.push({user: '系统：', content: content})
   ServerAPI.chat(currentId.value, input.value,(data) => {
 
@@ -312,8 +321,6 @@ const loadAll = () => {
   ServerAPI.loadAll(data => {
     if (data.length > 0) {
 
-      currentId.value = data[0].id
-
       for (let i = 0; i < data.length; i++) {
         const title = data[i].title
             ? data[i].title
@@ -333,7 +340,13 @@ const loadAll = () => {
 }
 
 onMounted(() => {
+  ServerAPI.getUserById(route.params.userId, (user) => {
+    console.log(user)
+    currentUser = user
+    console.log(currentUser)
+  })
   loadAll()
+  newDialog()
 })
 </script>
 
@@ -341,7 +354,7 @@ onMounted(() => {
 
 .text-item {
   text-align: left;
-  font-size: 13px;
+  font-size: 13.5px;
 }
 
 .new {
@@ -362,17 +375,17 @@ onMounted(() => {
 
 .title-col {
   font-size: 30px;
-  color: #f1ede4;
+  color: rgb(115.2, 117.6, 122.4);
   margin: 10px 0;
   font-family: '华文新魏';
-  background-color: #252831; /* 增加背景色 */
+  background-color: rgb(197.7, 225.9, 255); /* 增加背景色 */
   border-radius: 8px; /* 增加圆角 */
   box-shadow: 0 2px 4px rgb(0, 0, 0); /* 增加阴影 */
   transition: box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
 .title-col:hover {
-  background-color: #252831; /* 鼠标悬浮时改变背景色 */
+  background-color: rgb(216.8, 235.6, 255); /* 鼠标悬浮时改变背景色 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 鼠标悬浮时增加阴影 */
 }
 
@@ -383,12 +396,12 @@ onMounted(() => {
 
 /* 偶数行设置浅灰色背景 */
 .dialog-item:nth-child(even) .grid-list {
-  background-color: #eeeeed;
+  background-color: #F2F6FC;
 }
 
 /* 奇数行保持白色背景 */
 .dialog-item:nth-child(odd) .grid-list {
-  background-color: #f2f2f2;
+  background-color: rgb(235.9, 245.3, 255);
 }
 
 /* span 样式 */

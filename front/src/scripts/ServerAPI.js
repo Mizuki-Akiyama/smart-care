@@ -127,7 +127,9 @@ function setTitle(chatId, title, callback) {
 function login(userId,password,callback){
     fetch('/server-api/user/login' ,{
         method: 'POST',
-        headers: headers,
+        headers: {
+            'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
             userId,
             password
@@ -139,7 +141,6 @@ function login(userId,password,callback){
 
         return response.text()
     }).then((user)=>{
-        console.log(user)
         localStorage.setItem("validUser",JSON.parse(user).token)
         callback(user)
     })
@@ -148,7 +149,9 @@ function login(userId,password,callback){
 function register(user,callback){
     fetch('/server-api/user/register', {
         method: 'POST',
-        headers: headers,
+        headers: {
+            'Content-Type': 'application/json',
+        },
         body: user
     }).then(response=>{
         if (!response.ok) {
@@ -161,6 +164,27 @@ function register(user,callback){
     })
 }
 
+function getUserById(Id, callback) {
+    fetch('/server-api/user/getUserById?id=' + Id, {
+        method: 'GET',
+        headers: headers,
+    }).then(response => {
+        if (response.status === 401) {
+            router.push('/error');
+            throw new Error('未授权，请重新登录');
+        }
+
+        if (!response.ok) {
+            throw new Error(response.statusText)
+        }
+        return response.json()
+
+    }).then((user) => {
+        callback(user)
+    })
+
+}
+
 export default {
     chat: chat,
     save: save,
@@ -170,4 +194,5 @@ export default {
     setTitle: setTitle,
     login: login,
     register: register,
+    getUserById: getUserById,
 }

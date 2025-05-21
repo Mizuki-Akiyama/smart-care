@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 
-import com.example.demo.intercepter.ThreadLocalHolder;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.AuthUser;
 import com.example.demo.util.JWTUtil;
@@ -11,7 +10,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 public class UserService {
@@ -40,5 +38,9 @@ public class UserService {
 
         return authUser;
 
+    }
+
+    public User getUserById(String id){
+        return userMapper.getUserById(id);
     }
 }

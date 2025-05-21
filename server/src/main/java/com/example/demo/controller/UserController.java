@@ -26,4 +26,9 @@ public class UserController {
         userService.register(user);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/getUserById")
+    public ResponseEntity<User> getUserById(@RequestParam String id){
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
 }
