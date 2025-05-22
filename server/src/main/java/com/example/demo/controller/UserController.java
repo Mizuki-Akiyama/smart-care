@@ -31,4 +31,10 @@ public class UserController {
     public ResponseEntity<User> getUserById(@RequestParam String id){
         return ResponseEntity.ok(userService.getUserById(id));
     }
+
+    @PostMapping("/updateUser")
+    public ResponseEntity updateUser(@RequestBody User user){
+        userService.updateUser(user);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -43,4 +43,8 @@ public class UserService {
     public User getUserById(String id){
         return userMapper.getUserById(id);
     }
+
+    public void updateUser(User user){
+        System.out.println(user);
+        userMapper.updateUser(user);}
 }

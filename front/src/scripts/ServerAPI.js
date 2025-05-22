@@ -108,7 +108,7 @@ function setTitle(chatId, title, callback) {
         method: 'POST',
         headers: headers,
         body: title,
-    }).then(response=>{
+    }).then(response => {
         if (response.status === 401) {
             router.push('/error');
             throw new Error('未授权，请重新登录');
@@ -119,13 +119,13 @@ function setTitle(chatId, title, callback) {
         }
 
         return response.text()
-    }).then(()=>{
+    }).then(() => {
         callback()
     })
 }
 
-function login(userId,password,callback){
-    fetch('/server-api/user/login' ,{
+function login(userId, password, callback) {
+    fetch('/server-api/user/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -134,32 +134,32 @@ function login(userId,password,callback){
             userId,
             password
         }),
-    }).then(response=>{
+    }).then(response => {
         if (!response.ok) {
             throw new Error(response.statusText)
         }
 
         return response.text()
-    }).then((user)=>{
-        localStorage.setItem("validUser",JSON.parse(user).token)
+    }).then((user) => {
+        localStorage.setItem("validUser", JSON.parse(user).token)
         callback(user)
     })
 }
 
-function register(user,callback){
+function register(user, callback) {
     fetch('/server-api/user/register', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: user
-    }).then(response=>{
+    }).then(response => {
         if (!response.ok) {
             throw new Error(response.statusText)
         }
 
         return response.text()
-    }).then(()=>{
+    }).then(() => {
         callback()
     })
 }
@@ -185,6 +185,29 @@ function getUserById(Id, callback) {
 
 }
 
+function updateUser(user, callback) {
+    fetch('/server-api/user/updateUser', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(user)
+    }).then(response => {
+        if (response.status === 401) {
+            router.push('/error');
+            throw new Error('未授权，请重新登录');
+        }
+
+        if (!response.ok) {
+            throw new Error(response.statusText)
+        }
+
+        return response.text()
+    }).then((user) => {
+        console.log(user)
+        callback(user)
+    })
+}
+
+
 export default {
     chat: chat,
     save: save,
@@ -195,4 +218,5 @@ export default {
     login: login,
     register: register,
     getUserById: getUserById,
+    updateUser: updateUser,
 }

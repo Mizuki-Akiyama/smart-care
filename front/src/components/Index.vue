@@ -103,8 +103,36 @@
             <el-col :span="19" class="title-col">对话</el-col>
             <el-col :span="1"></el-col>
             <el-col :span="1">
-              <el-button link style="width: 50px;height: 50px; margin-left: 20px; font-size: 20px" :icon="Operation" />
+<!--              <el-tooltip-->
+<!--                  class="box-item"-->
+<!--                  effect="dark"-->
+<!--                  content="管理"-->
+<!--                  placement="left"-->
+<!--              >-->
+              <el-button link style="width: 50px;height: 50px; margin-left: 20px; font-size: 20px" :icon="Operation" @click="config = true"/>
+<!--              </el-tooltip>-->
             </el-col>
+            <el-drawer
+                v-model="config"
+                title="用户信息管理"
+                :before-close="handleClose"
+                direction="rtl"
+                class="demo-drawer"
+                size="20%"
+            >
+              <div class="demo-drawer__content">
+                <el-form :model="currentUser">
+                  <el-form-item label="用户名:" width="200">
+                    <el-input v-model="currentUser.userName"/>
+                  </el-form-item>
+                </el-form>
+                <div class="demo-drawer__footer">
+                  <el-button @click="cancelForm">取消</el-button>
+                  <el-button type="primary" :loading="loading" @click="onClick">提交</el-button>
+                </div>
+              </div>
+            </el-drawer>
+
             <el-col :span="1">
               <el-avatar
                   src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
@@ -170,13 +198,15 @@ import logo from '@/components/icons/NoBackgroundLogo.png'
 import {useRoute} from "vue-router";
 
 
-let currentUser = {}
+const currentUser = ref({})
+let copyUser = {}
 const route = useRoute()
 const dialogs = ref([])
 const chat = ref([])
 const input = ref('')
 let currentId = ref('')
 let isProcessing = false
+const config = ref(false)
 
 const scrollRef = ref()
 
@@ -215,7 +245,7 @@ const send = () => {
   }
   isProcessing = true
   isEmpty()
-  dialogs.value.push({user: currentUser.userName + '：', content: input.value})
+  dialogs.value.push({user: copyUser.userName + '：', content: input.value})
   dialogs.value.push({user: '系统：', content: content})
   ServerAPI.chat(currentId.value, input.value,(data) => {
 
@@ -239,7 +269,7 @@ const startEdit = (item) => {
 
 const confirmEdit = (item) => {
   if (item.editingTitle.trim()) {
-    item.title = item.editingTitle // 临时更新标题
+    item.title = item.editingTitle.slice(0,8) // 临时更新标题
     item.isEditing = false
 
     ServerAPI.setTitle(item.id, item.editingTitle, () => {
@@ -339,11 +369,48 @@ const loadAll = () => {
   })
 }
 
+
+let timer
+const loading = ref(false)
+
+const onClick = () => {
+  loading.value = true
+
+  setTimeout(() => {
+
+      ServerAPI.updateUser(currentUser.value, () => {
+        console.log(currentUser.value)
+        copyUser = currentUser.value
+      })
+      ElMessage.success('修改成功！')
+
+    loading.value = false
+    config.value = false
+  }, 400)
+}
+
+
+const handleClose = () => {
+  ElMessageBox.confirm(
+      '确定要关闭窗口吗？', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      })
+      .then(() => {
+        cancelForm()
+      })
+}
+
+const cancelForm = () => {
+  config.value = false
+  clearTimeout(timer)
+
+}
+
 onMounted(() => {
   ServerAPI.getUserById(route.params.userId, (user) => {
-    console.log(user)
-    currentUser = user
-    console.log(currentUser)
+    currentUser.value = user
+    copyUser = user
   })
   loadAll()
   newDialog()
