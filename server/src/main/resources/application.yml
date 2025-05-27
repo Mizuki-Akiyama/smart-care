@@ -15,7 +15,7 @@ spring:
       chat:
         enabled: true
         options:
-          model: qwen2:latest
+          model: qwen3:latest
 
 mybatis:
   mapper-locations: classpath:/mapper/*.xml
