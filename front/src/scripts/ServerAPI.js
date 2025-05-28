@@ -6,10 +6,15 @@ headers.append("Authorization", "Bearer " + localStorage.getItem("validUser"));
 
 function chat(chatId, msg, callback, finish) {
     const eventSource = new EventSource(`/server-api/ai/stream?msg=` + msg + `&chatId=` + chatId + '&token=' + localStorage.getItem("validUser"));
-
+    let messageCount = 0;
     eventSource.onmessage = function (event) {
+
         const data = JSON.parse(event.data)
-        callback(data.result.output.text, null)
+        console.log(data)
+        messageCount++;
+        if (messageCount >= 4) {
+            callback(data.result.output.text, null);
+        }
         if (data.result.metadata.finishReason === 'stop') {
             eventSource.close()
             finish()

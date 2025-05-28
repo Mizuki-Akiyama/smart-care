@@ -1,5 +1,11 @@
 <template>
   <el-container class="register">
+    <el-header>
+      <h4 style="margin-top: 15px;font-size: 40px; font-family: '华文新魏'">
+        <img :src="logo" style="width: 50px; height: 50px; vertical-align: middle;"/>
+        心语智疗
+      </h4>
+    </el-header>
     <el-main class="card">
       <el-card class="form">
         <el-form label-width="auto" style="max-width: 500px">
@@ -40,6 +46,7 @@ import {reactive, ref} from 'vue'
 import {ElMessage} from 'element-plus'
 import ServerAPI from '../scripts/ServerAPI';
 import router from "@/router/index.js";
+import logo from "@/components/icons/NoBackgroundLogo.png";
 
 const user = reactive({
   userId: '',

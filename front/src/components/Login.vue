@@ -1,5 +1,11 @@
 <template>
   <el-container class="login">
+    <el-header>
+      <h4 style="margin-top: 15px;font-size: 40px; font-family: '华文新魏'">
+        <img :src="logo" style="width: 50px; height: 50px; vertical-align: middle;"/>
+        心语智疗
+      </h4>
+    </el-header>
     <el-main class="card">
       <el-card class="form">
         <h1 style="font-size: 36px; margin-bottom: 10px">欢迎登录</h1>
@@ -24,24 +30,31 @@ import {ref } from 'vue'
 import ServerAPI from '../scripts/ServerAPI';
 import {ElMessage} from 'element-plus'
 import router from "@/router/index.js";
+import logo from "@/components/icons/NoBackgroundLogo.png";
 
 const account = ref('')
 const password = ref('')
 
 const submit = () => {
 
-  ServerAPI.login(account.value, password.value,(user)=>{
+  if(account.value === '' ){
+    ElMessage.error('账号不能为空')
+  }else if (password.value === ''){
+ ElMessage.error('密码不能为空')
+  }else {
 
-    if(JSON.parse(user).token != null){
-      router.push({
-        name: 'home',
-        params: {userId: account.value}
-      })
-    }else {
-      ElMessage.error('账号或密码错误')
-    }
-  })
+    ServerAPI.login(account.value, password.value, (user) => {
 
+      if (JSON.parse(user).token != null) {
+        router.push({
+          name: 'home',
+          params: {userId: account.value}
+        })
+      } else {
+        ElMessage.error('账号或密码错误')
+      }
+    })
+  }
 }
 
 </script>
