@@ -7,10 +7,12 @@ headers.append("Authorization", "Bearer " + localStorage.getItem("validUser"));
 function chat(chatId, msg, callback, finish) {
     const eventSource = new EventSource(`/server-api/ai/stream?msg=` + msg + `&chatId=` + chatId + '&token=' + localStorage.getItem("validUser"));
     let messageCount = 0;
-    eventSource.onmessage = function (event) {
+    let isFinished = false;
 
+    eventSource.onmessage = function (event) {
+        if (isFinished) return
         const data = JSON.parse(event.data)
-        console.log(data)
+
         messageCount++;
         if (messageCount >= 4) {
             callback(data.result.output.text, null);
@@ -20,6 +22,17 @@ function chat(chatId, msg, callback, finish) {
             finish()
         }
     }
+
+    return {
+        abort: ()=>{
+            if(!isFinished){
+                isFinished = true
+                eventSource.close()
+                finish()
+            }
+        }
+    }
+
 }
 
 function save(chatId, data, callback) {

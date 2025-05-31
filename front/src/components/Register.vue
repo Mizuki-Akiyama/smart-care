@@ -1,7 +1,7 @@
 <template>
   <el-container class="register">
     <el-header>
-      <h4 style="margin-top: 15px;font-size: 40px; font-family: '华文新魏'">
+      <h4 style="margin-top: 15px;font-size: 40px; font-family: 'Aa可爱被甜甜圈住了';color: #FFFFFF">
         <img :src="logo" style="width: 50px; height: 50px; vertical-align: middle;"/>
         心语智疗
       </h4>
@@ -9,7 +9,7 @@
     <el-main class="card">
       <el-card class="form">
         <el-form label-width="auto" style="max-width: 500px">
-          <h1 style="font-size: 36px; margin-bottom: 10px">注册一个账号</h1>
+          <h1 style="font-size: 36px; margin-bottom: 10px; font-family: 'Aa可爱被甜甜圈住了'">注册一个账号</h1>
           <br>
           <el-form-item label="账号:">
             <el-input v-model="user.userId" type="text" autocomplete="off"
@@ -110,7 +110,10 @@ const back = () => {
 
 .register {
   height: 98.2vh;
-  background: linear-gradient(65deg, rgb(121.3, 187.1, 255), rgb(235.9, 245.3, 255));
+  background-image: url("@/components/icons/BackgroundImg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .card {
@@ -128,6 +131,7 @@ const back = () => {
   align-items: center;
   text-align: center;
   padding-top: 40px;
+  background-color: #F2F6FC;
 }
 
 

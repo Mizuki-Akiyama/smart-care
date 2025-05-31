@@ -3,14 +3,14 @@
     <el-container>
 
               <el-aside width="250px"
-                        style="text-align: center;background-color: rgb(216.8, 235.6, 255); font-size: 40px; font-family: '华文新魏';color: #303133;">
+                        style="text-align: center;background-color: rgb(216.8, 235.6, 255); font-size: 40px; font-family: 'Aa可爱被甜甜圈住了';color: #303133;">
 
 <!--      <el-aside width="250px"-->
 <!--                style="text-align: center; background: linear-gradient(to bottom, rgb(197.7, 225.9, 255), rgb(216.8, 235.6, 255)); font-size: 40px; font-family: '华文新魏';color: #303133;">-->
 
         <!--          <span style="-webkit-text-stroke: 1px rgb(159.5, 206.5, 255);">聊天历史</span>-->
         <h4 style="margin-top: 15px">
-          <img :src="logo" style="width: 50px; height: 50px; vertical-align: middle;"/>
+          <img :src="NoBgLogo" style="width: 50px; height: 50px; vertical-align: middle;"/>
           心语智疗
         </h4>
         <el-divider border-style="hidden"/>
@@ -91,7 +91,7 @@
 <!--            style="text-align: center;background-color: #2c3e50; font-size: 40px; font-family: '华文新魏';color: #ffffff;">-->
 
 <!--          <h4>-->
-<!--            <img :src="logo" style="width: 50px; height: 50px; vertical-align: middle;"/>-->
+<!--            <img :src="NoBgLogo" style="width: 50px; height: 50px; vertical-align: middle;"/>-->
 <!--            心语智疗-->
 <!--          </h4>-->
 <!--        </el-header>-->
@@ -126,6 +126,7 @@
                     <el-input v-model="currentUser.userName"/>
                   </el-form-item>
                 </el-form>
+
                 <div class="demo-drawer__footer">
                   <el-button @click="cancelForm">取消</el-button>
                   <el-button type="primary" :loading="loading" @click="onClick">提交</el-button>
@@ -142,13 +143,23 @@
           <el-row>
             <el-col :span="24" style="min-height: 751px">
               <el-scrollbar max-height="751px" ref="scrollRef">
-                <div v-for="dialog in dialogs" id="dialog" :key="index" class="dialog-item">
-                  <div class="grid-list">
-                    <span>
-                      {{ dialog.user }}
-                      <v-md-preview :text="dialog.content"></v-md-preview>
-                    </span>
+                <div v-for="dialog in dialogs" id="dialog" :key="index"
+                     :class="{'user-message': dialog.user.startsWith('用户'), 'system-message': dialog.user.startsWith('系统')}"
+                     class="message-container"
+                >
+<!--                  class="dialog-item"-->
+<!--                  class="grid-list"-->
+                  <el-avatar v-if="dialog.user.startsWith('系统')" :size="40">
+                    <img :src=Logo />
+                  </el-avatar>
+
+                  <div class="message-bubble">
+                    <v-md-preview :text="dialog.content"></v-md-preview>
                   </div>
+
+                  <el-avatar v-if="dialog.user.startsWith('用户')" :size="40" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png">
+
+                  </el-avatar>
                 </div>
               </el-scrollbar>
             </el-col>
@@ -160,13 +171,20 @@
             </el-col>
             <el-col :span="1"></el-col>
             <el-col :span="3">
-              <el-button @click="send" size="large" style="font-size: 20px; border-radius: 2px; /* 增加圆角 */
+              <el-button v-if="isProcessing" @click="stopStream" size="large" style="font-size: 20px; border-radius: 2px; /* 增加圆角 */
                           box-shadow: 0 2px 4px rgb(0, 0, 0); /* 增加阴影 */
                           transition: box-shadow 0.3s ease, background-color 0.3s ease;">
-                <el-icon style="">
+                <el-icon><SwitchButton /></el-icon>
+              </el-button>
+
+              <el-button v-else @click="send" size="large" style="font-size: 20px; border-radius: 2px; /* 增加圆角 */
+                          box-shadow: 0 2px 4px rgb(0, 0, 0); /* 增加阴影 */
+                          transition: box-shadow 0.3s ease, background-color 0.3s ease;">
+                <el-icon>
                   <Promotion/>
                 </el-icon>
               </el-button>
+
             </el-col>
           </el-row>
           <el-row style="padding-top: 10px">
@@ -190,11 +208,12 @@ import {
   Delete,
   Promotion,
   MoreFilled,
-  Edit, Operation
+  Edit, Operation, SwitchButton
 } from "@element-plus/icons-vue";
 import index from "vuex";
 import {ElMessage, ElMessageBox} from "element-plus";
-import logo from '@/components/icons/NoBackgroundLogo.png'
+import NoBgLogo from '@/components/icons/NoBackgroundLogo.png';
+import Logo from '@/components/icons/logo.png';
 import {useRoute} from "vue-router";
 
 
@@ -205,9 +224,9 @@ const dialogs = ref([])
 const chat = ref([])
 const input = ref('')
 let currentId = ref('')
-let isProcessing = false
+const isProcessing = ref(false)
 const config = ref(false)
-
+const chatController = ref(null)
 const scrollRef = ref()
 
 const autoScroll = () => {
@@ -235,7 +254,7 @@ const isEmpty = () => {
 }
 
 const send = () => {
-  if (isProcessing) {
+  if (isProcessing.value) {
     return
   }
 
@@ -243,23 +262,32 @@ const send = () => {
   if (input.value === '') {
     input.value = '给我讲个笑话'
   }
-  isProcessing = true
+  isProcessing.value = true
   isEmpty()
-  dialogs.value.push({user: copyUser.userName + '：', content: input.value})
-  dialogs.value.push({user: '系统：', content: content})
-  ServerAPI.chat(currentId.value, input.value,(data) => {
+  dialogs.value.push({user: '用户', content: input.value})
+  dialogs.value.push({user: '系统', content: content})
+  chatController.value = ServerAPI.chat(currentId.value, input.value,(data) => {
 
     content += data;
     dialogs.value[dialogs.value.length - 1].content = content
+    console.log(dialogs.value)
 
   }, () => {
-    isProcessing = false
+    isProcessing.value = false
     saveDialogs()
     autoScroll()
+    chatController.value = null
   })
 
   input.value = ''
 
+}
+
+const stopStream = () => {
+  if (chatController.value) {
+    chatController.value.abort()
+    chatController.value = null
+  }
 }
 
 const startEdit = (item) => {
@@ -290,7 +318,7 @@ function saveDialogs() {
 }
 
 const loadDialogs = (chatId) => {
-  if (!isProcessing) {
+  if (!isProcessing.value) {
     ServerAPI.load(chatId, data => {
       currentId.value = chatId
       if (data !== '[]') {
@@ -315,7 +343,7 @@ const clearDialogs = (chatId) => {
       }
   )
       .then(() => {
-        if (!isProcessing) {
+        if (!isProcessing.value) {
 
           ServerAPI.clear(chatId, () => {
             dialogs.value = []
@@ -338,7 +366,7 @@ const clearDialogs = (chatId) => {
 
 
 const newDialog = () => {
-  if (!isProcessing) {
+  if (!isProcessing.value) {
 
     dialogs.value = []
     input.value = ''
@@ -480,6 +508,63 @@ onMounted(() => {
 
 .grid-list:hover {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.message-container {
+  display: flex;
+  align-items: flex-start;
+  margin: 15px 20px;
+}
+
+/* 系统消息布局 */
+.system-message {
+  justify-content: flex-start;
+}
+.system-message .message-bubble {
+  background: #FFFFFF;
+  margin-left: 12px;
+}
+
+
+
+/* 用户消息布局 */
+.user-message {
+  justify-content: flex-end;
+}
+.user-message .message-bubble {
+  background: #FFFFFF;
+  margin-right: 12px;
+}
+
+.message-bubble {
+  max-width: 70%;
+  padding: 12px 16px;
+  border-radius: 15px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 气泡小箭头 */
+.message-bubble::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 8px solid transparent;
+}
+
+/* 系统消息箭头 */
+.system-message .message-bubble::after {
+  left: -16px;
+  top: 12px;
+  border-right-color: #FFFFFF;
+}
+
+/* 用户消息箭头 */
+.user-message .message-bubble::after {
+  right: -16px;
+  top: 12px;
+  border-left-color: #FFFFFF;
 }
 
 
