@@ -22,12 +22,6 @@ public class AIController {
     @Autowired
     private OllamaService ollamaService;
 
-//    @GetMapping("/text")
-//    public ResponseEntity chat(@RequestParam(value = "msg", defaultValue = "给我讲个笑话") String msg) {
-//        Flux<String> res = ollamaService.chat(msg);
-//        return ResponseEntity.ok().body(res);
-//    }
-
     @PostMapping("/save/{chatId}")
     public ResponseEntity save(@PathVariable("chatId") String chatId, @RequestBody Dialogs dialogs) {
 //        System.out.println(dialogs.getData());

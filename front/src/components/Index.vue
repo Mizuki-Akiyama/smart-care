@@ -4,11 +4,6 @@
 
               <el-aside width="250px"
                         style="text-align: center;background-color: rgb(216.8, 235.6, 255); font-size: 40px; font-family: 'Aa可爱被甜甜圈住了';color: #303133;">
-
-<!--      <el-aside width="250px"-->
-<!--                style="text-align: center; background: linear-gradient(to bottom, rgb(197.7, 225.9, 255), rgb(216.8, 235.6, 255)); font-size: 40px; font-family: '华文新魏';color: #303133;">-->
-
-        <!--          <span style="-webkit-text-stroke: 1px rgb(159.5, 206.5, 255);">聊天历史</span>-->
         <h4 style="margin-top: 15px">
           <img :src="NoBgLogo" style="width: 50px; height: 50px; vertical-align: middle;"/>
           心语智疗
@@ -84,33 +79,13 @@
       </el-aside>
 
       <el-container>
-
-        <!--      <el-header-->
-        <!--          style="text-align: center;background: radial-gradient(circle, rgb(159.5, 206.5, 255),#ffffff); font-size: 40px; font-family: '华文新魏';color: #ffffff;">-->
-<!--        <el-header-->
-<!--            style="text-align: center;background-color: #2c3e50; font-size: 40px; font-family: '华文新魏';color: #ffffff;">-->
-
-<!--          <h4>-->
-<!--            <img :src="NoBgLogo" style="width: 50px; height: 50px; vertical-align: middle;"/>-->
-<!--            心语智疗-->
-<!--          </h4>-->
-<!--        </el-header>-->
-
         <el-main style="background: linear-gradient(to bottom, rgb(216.8, 235.6, 255), #ffffff)">
-<!--          <el-main style="background-color: rgb(235.9, 245.3, 255)">-->
           <el-row class="title-row">
             <el-col :span="2"></el-col>
             <el-col :span="19" class="title-col">对话</el-col>
             <el-col :span="1"></el-col>
             <el-col :span="1">
-<!--              <el-tooltip-->
-<!--                  class="box-item"-->
-<!--                  effect="dark"-->
-<!--                  content="管理"-->
-<!--                  placement="left"-->
-<!--              >-->
               <el-button link style="width: 50px;height: 50px; margin-left: 20px; font-size: 20px" :icon="Operation" @click="config = true"/>
-<!--              </el-tooltip>-->
             </el-col>
             <el-drawer
                 v-model="config"
@@ -147,8 +122,6 @@
                      :class="{'user-message': dialog.user.startsWith('用户'), 'system-message': dialog.user.startsWith('系统')}"
                      class="message-container"
                 >
-<!--                  class="dialog-item"-->
-<!--                  class="grid-list"-->
                   <el-avatar v-if="dialog.user.startsWith('系统')" :size="40">
                     <img :src=Logo />
                   </el-avatar>
@@ -190,8 +163,6 @@
           <el-row style="padding-top: 10px">
             <el-col :span="24"></el-col>
           </el-row>
-<!--          <el-row>-->
-<!--          </el-row>-->
         </el-main>
       </el-container>
     </el-container>
