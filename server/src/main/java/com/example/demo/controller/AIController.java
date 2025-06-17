@@ -10,9 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
-import java.awt.*;
-import java.util.List;
-import java.util.Map;
+
 
 @RestController
 @RequestMapping("/ai")

@@ -116,7 +116,7 @@
             </el-col>
           </el-row>
           <el-row>
-            <el-col :span="24" style="min-height: 751px">
+            <el-col :span="24" style="min-height: 750px">
               <el-scrollbar max-height="751px" ref="scrollRef">
                 <div v-for="dialog in dialogs" id="dialog" :key="index"
                      :class="{'user-message': dialog.user.startsWith('用户'), 'system-message': dialog.user.startsWith('系统')}"
